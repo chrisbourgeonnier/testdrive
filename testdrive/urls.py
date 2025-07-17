@@ -17,13 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
-from django.conf.urls.static import static
+from django.conf.urls.static import static                  # For static files
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include('vehicles.urls')),     # Homepage is the vehicles' catalogue
-    path('bookings/', include('bookings.urls')),
-    path('captcha/', include('captcha.urls')),
+    path('admin/', admin.site.urls),                # Admin route
+    path('', include('vehicles.urls')),             # Homepage is the vehicles' catalogue
+    path('bookings/', include('bookings.urls')),    # Bookings route
+    path('captcha/', include('captcha.urls')),      # Captcha route for booking verification
 ]
 
 if settings.DEBUG:  # Needed for serving media during development
