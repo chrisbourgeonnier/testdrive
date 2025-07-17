@@ -2,7 +2,7 @@ from django.db import models
 
 # Vehicle model to match car attributes
 class Vehicle(models.Model):
-    vehicle_id = models.IntegerField(unique=True)  # Richmonds ID or imported ID
+    # vehicle_id = models.IntegerField(unique=True)  # Richmonds ID or imported ID
     make = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.IntegerField()
