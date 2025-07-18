@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Vehicles</title>
+</head>
+<body>
+    <h1>Available Vehicles</h1>
+    <ul>
+        {% for vehicle in vehicles %}
+        <li>
+        <strong>{{ vehicle.make }} {{ vehicle.model }}</strong><br>
+        Year: {{ vehicle.year }}<br>
+        Price: ${{ vehicle.price }}<br>
+        <em>Descripción:</em> {{ vehicle.description }}<br>
+
+        {% if vehicle.image %}
+            <img src="{{ vehicle.image.url }}" alt="Vehicle Image" width="200">
+        {% else %}
+            <p><small>No image available</small></p>
+        {% endif %}
+        </li>
+    {% empty %}
+        <li>No vehicles available.</li>
+    {% endfor %}
+    </ul>>
+</body>
+</html>
