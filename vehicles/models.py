@@ -16,7 +16,8 @@ class Vehicle(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # Optional - for local/media image uploads in the future instead of using photo_link
+
+    # Optional: - for local/media image uploads in the future instead of using photo_link
     # photo_image = models.ImageField(upload_to='vehicle_photos/', blank=True, null=True)
 
     def __str__(self):

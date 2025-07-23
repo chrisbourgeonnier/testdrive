@@ -4,7 +4,7 @@ from .models import Booking
 # Booking model with list filters and bulk actions
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
-    list_display = ['vehicle', 'status', 'requested_date', 'requested_time', 'user', 'guest_name']
+    list_display = ['id', 'vehicle', 'status', 'requested_date', 'requested_time', 'user', 'guest_name']
     search_fields = ['vehicle__make', 'vehicle__model', 'guest_name', 'user__email']
     list_filter = ['status', 'requested_date', 'vehicle__make', 'vehicle__year']
     actions = ['mark_confirmed', 'mark_completed', 'mark_canceled']

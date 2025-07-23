@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from vehicles.models import Vehicle
-import requests
 from bs4 import BeautifulSoup
+import requests
 import re
 
 class Command(BaseCommand):
@@ -59,7 +59,7 @@ class Command(BaseCommand):
                 'year': year,
                 'km': 0,
                 'engine_size': 0,
-                'cylinders': '',
+                # 'cylinders': '',
                 'transmission': '',
                 'price': 0,
                 'photo_link': photo_link,
@@ -95,11 +95,11 @@ class Command(BaseCommand):
                         detail_data['engine_size'] = int(re.sub(r'[^\d]', '', value))
                     except ValueError:
                         detail_data['engine_size'] = 0
-                elif label == 'cylinders':
-                    try:
-                        detail_data['cylinders'] = value
-                    except ValueError:
-                        detail_data['cylinders'] = 0
+                # elif label == 'cylinders':
+                #     try:
+                #         detail_data['cylinders'] = value
+                #     except ValueError:
+                #         detail_data['cylinders'] = 0
                 elif label == 'transmission':
                     detail_data['transmission'] = value
                 elif label == 'price':
