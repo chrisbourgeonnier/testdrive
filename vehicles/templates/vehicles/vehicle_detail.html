@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
+  <img src="{{ vehicle.photo_link }}" style="max-width:400px;" />
+  <p>{{ vehicle.description }}</p>
+  <p><strong>Price:</strong> ${{ vehicle.price }}</p>
+  <p><a href="{% url 'create_booking' %}?vehicle={{ vehicle.pk }}">Book a Test Drive</a></p>
+  <p><a href="{{ vehicle.link }}" target="_blank">More on Richmonds.com.au</a></p>
+{% endblock %}

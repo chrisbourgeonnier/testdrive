@@ -131,7 +131,7 @@ celerybeat.pid
 .env
 .venv
 env/
-venv/
+.venv/
 ENV/
 env.bak/
 venv.bak/
@@ -193,5 +193,8 @@ cython_debug/
 .cursorignore
 .cursorindexingignore
 
-# PyCharm nonsense:
-.idea/
+# PyCharm idea files
+.idea/*
+!.idea/codeStyles
+!.idea/misc.xml
+!.idea/modules.xml
