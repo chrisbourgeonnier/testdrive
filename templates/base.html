@@ -10,10 +10,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'main.css' %}">
     <link rel="stylesheet" href="{% static 'banner.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- Optionally add Bootstrap or other frameworks if using -->
 </head>
 <body>
     <header class="main-header">
+        <div id="topbar" class="topclass">
+          <div class="container">
+                <div class="topbarmenu clearfix">
+                  <div class="topbar_social">
+                      <div class="col-left">
+                          <a class="tel" href="tel:+61883662210">08 8366 2210</a>
+                      </div>
+                      <div class="col-right">
+                          <a href="https://www.instagram.com/richmondsautomotivegroup" target="_blank" title="Instagram">
+                              <i class="fa-brands fa-instagram"></i>
+                          </a>
+                          <a href="https://www.facebook.com/RichmondsAutomotiveGroup" target="_blank" title="Facebook">
+                              <i class="fa-brands fa-square-facebook"></i>
+                          </a>
+                      </div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="banner">
             <div>
                   <a href="/" class="site-logo">
@@ -27,9 +48,10 @@
         <div class="navbar-container">
           <nav class="site-navbar">
             <ul>
-              <li><a href="{% url 'vehicle_list' %}">Vehicles</a></li>
-              <li><a href="{% url 'create_booking' %}">Book a Test Drive</a></li>
-              <li><a href="https://richmonds.com.au/">Richmonds.com.au</a></li>
+              <li><a href="{% url 'vehicle_list' %}">HOME</a></li>
+{#              <li><a href="{% url 'create_booking' %}">Book a Test Drive</a></li>#}
+              <li><a href="https://richmonds.com.au/">RICHMONDS.COM.AU</a></li>
+                <li><a href="/login" class="login">LOG IN</a></li>
             </ul>
           </nav>
         </div>

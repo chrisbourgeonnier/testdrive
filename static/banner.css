@@ -11,21 +11,70 @@ body, ul {
   padding: 0;
 }
 
+/* START OF RED BAR */
+#topbar.topclass {
+  background-color: #dd0000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+/* Two columns, 50% width each */
+.topbar_social {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+
+/* Topbar menu and social ul */
+.topbar_social div {
+  flex: 0 0 50%;
+  max-width: 50%;
+  box-sizing: border-box;
+}
+
+/* Left & right specific */
+.col-left {
+  /* Left side - align text left */
+  text-align: left;
+}
+.col-right {
+  /* Right side - align text right */
+  text-align: right;
+  align-items: end;
+}
+
+/* Social icons placeholder styling */
+.topbar_social > div > a {
+  font-style: normal;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 1;
+  color: white;
+  margin-right: 6px;
+  text-decoration: none !important;
+}
+/* END OF RED BAR */
+
+
 .banner {
   display: flex;
-  justify-items: center;
   justify-content: center;
+  align-items: center;
+  gap: 30px;
 }
 
 #site-title {
   color: #ffffff;
+  margin: auto;
+  text-align: center;
 }
 
 .navbar-container {
   max-width: 1980px;
   margin: auto;
   height: 60px;
-  padding: 0 20px 0 0;
   align-content: center;
 }
 
@@ -33,7 +82,7 @@ body, ul {
 .site-logo img {
   height: 100px;
   display: block;
-  margin-right: 28px;
+  padding: 10px 0;
 }
 
 /* Navbar links */
@@ -58,15 +107,27 @@ body, ul {
   font-weight: bold;
   font-size: 1.09rem;
   letter-spacing: 0.02em;
-  padding: 10px 8px;
-  transition: color 0.16s;
-  border-radius: 2px;
+  padding: 10px 50px;
+  transition: color 0.25s;
 }
 
 .site-navbar a:hover,
 .site-navbar a:focus {
-  color: #16974f; /* Richmonds accent green for hover */
-  background-color: #232323;
+  color: #dd0000;
+}
+
+.login {
+  color: #dd0000 !important;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1.09rem;
+  letter-spacing: 0.02em;
+  padding: 10px 10px 10px 30px;
+  transition: color 0.25s;
+}
+
+.login:hover {
+  color: #fff !important;
 }
 
 /* Responsive: collapses navbar on small screens */
