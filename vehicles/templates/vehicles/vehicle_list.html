@@ -1,13 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-  <h1>Our Vehicles</h1>
-  <ul>
-    {% for vehicle in vehicles %}
-      <li>
-        <a href="{% url 'vehicle_detail' vehicle.pk %}">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</a>
-      </li>
-    {% empty %}
-      <li>No vehicles available.</li>
-    {% endfor %}
-  </ul>
+  <h1 class="entry-title">Our Vehicles</h1>
+    <section class="car-listings">
+        {% if vehicles %}
+            {% for vehicle in vehicles %}
+                <div class="car-card" >
+                    <a href="{% url 'vehicle_detail' vehicle.pk %}">
+                        <div class="car-img">
+                          <img
+                            src="{{ vehicle.photo_link }}"
+                            alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
+                            loading="lazy"
+                          >
+                        </div>
+                        <div class="car-details">
+                          <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No vehicles available.</p>
+        {% endif %}
+    </section>
 {% endblock %}

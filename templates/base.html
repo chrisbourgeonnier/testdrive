@@ -7,20 +7,36 @@
     <title>Test Drive Booking System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'main.css' %}">
+    <link rel="stylesheet" href="{% static 'banner.css' %}">
     <!-- Optionally add Bootstrap or other frameworks if using -->
 </head>
 <body>
-    <header>
-        <h1><a href="{% url 'vehicle_list' %}">Test Drive Booking System</a></h1>
-        <nav>
-            <a href="{% url 'vehicle_list' %}">Vehicles</a> |
-            <a href="{% url 'create_booking' %}">Book a Test Drive</a>
-        </nav>
+    <header class="main-header">
+        <div class="banner">
+            <div>
+                  <a href="/" class="site-logo">
+                    <img src="{% static 'favicon.png' %}" alt="Richmonds Logo">
+                  </a>
+            </div>
+            <div>
+                  <h1 id="site-title">Test Drive Booking System</h1>
+            </div>
+        </div>
+        <div class="navbar-container">
+          <nav class="site-navbar">
+            <ul>
+              <li><a href="{% url 'vehicle_list' %}">Vehicles</a></li>
+              <li><a href="{% url 'create_booking' %}">Book a Test Drive</a></li>
+              <li><a href="https://richmonds.com.au/">Richmonds.com.au</a></li>
+            </ul>
+          </nav>
+        </div>
         <hr>
     </header>
 
-    <main>
+    <main class="container">
         {% block content %}
         <!-- Page-specific content will be injected here -->
         {% endblock %}
