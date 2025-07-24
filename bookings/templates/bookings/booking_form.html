@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Book a Test Drive</h2>
-  <form method="post">
+  <h1 class="entry-title">Book a Test Drive</h1>
+
+        {% if selected_vehicle %}
+            <p><strong>Vehicle: {{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
+        {% endif %}
+
+  <form class="form" method="post">
       {% csrf_token %}
       {{ form.as_p }}
       <button type="submit">Submit Booking</button>
