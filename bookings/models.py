@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from vehicles.models import Vehicle
+from django.utils import timezone
 
 # Booking model relating to Vehicle, and supporting both guest and user bookings.
 class Booking(models.Model):
@@ -20,6 +21,7 @@ class Booking(models.Model):
     guest_name = models.CharField(max_length=100, blank=True)
     guest_email = models.EmailField(blank=True)
     guest_phone = models.CharField(max_length=20, blank=True)
+    dob = models.DateField(default=timezone.now)
     requested_date = models.DateField()
     requested_time = models.TimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
