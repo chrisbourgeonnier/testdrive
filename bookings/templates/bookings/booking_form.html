@@ -1,14 +1,55 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
   <h1 class="entry-title">Book a Test Drive</h1>
 
-        {% if selected_vehicle %}
-            <p><strong>Vehicle: {{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
-        {% endif %}
+  {% if selected_vehicle %}
+    <p><strong>Vehicle: {{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
+  {% endif %}
 
-  <form class="form" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Submit Booking</button>
+  <form class="form" method="post" id="booking-form">
+    {% csrf_token %}
+    {{ form.vehicle }}
+
+    <p>
+      {{ form.guest_name.label_tag }}
+      {{ form.guest_name }}
+    </p>
+    <p>
+      {{ form.guest_email.label_tag }}
+      {{ form.guest_email }}
+    </p>
+    <p>
+      {{ form.guest_phone.label_tag }}
+      {{ form.guest_phone }}
+    </p>
+    <p>
+      {{ form.dob.label_tag }}
+      {{ form.dob }}
+    </p>
+
+    <!-- Hidden booking date/time fields (populated via FullCalendar interaction) -->
+    {{ form.requested_date }}
+    {{ form.requested_time }}
+    <p><strong>Choose your preferred date and time:</strong></p>
+    <div id="calendar"></div>
+
+    <p id="selected-slot">No time selected</p>
+
+    <p>
+      {{ form.captcha.label_tag }}<br>
+      {{ form.captcha }}
+    </p>
+
+    <button type="submit" id="submit-button" disabled>Submit Booking</button>
   </form>
+
+  <!-- FullCalendar CSS -->
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+
+  <!-- FullCalendar JS -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+  <!-- Custom calendar JS -->
+  <script src="{% static 'calendar.js' %}"></script>
 {% endblock %}

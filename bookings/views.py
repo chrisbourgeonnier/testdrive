@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from .models import Booking
-from .forms import BookingForm  # You'll create this form next
+from .forms import BookingForm
 from django.urls import reverse_lazy
 from vehicles.models import Vehicle
 

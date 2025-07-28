@@ -62,3 +62,11 @@ body {
 .form {
   margin: auto;
 }
+
+#calendar {
+  max-width: 600px;
+}
+
+#calendar .fc-highlight {
+  background-color: #3030ff;
+}
