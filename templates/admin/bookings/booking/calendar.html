@@ -1,0 +1,57 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Bookings Calendar{% endblock %}
+
+{% block content %}
+
+    <div style="max-width:900px; margin:auto 1em;">
+        <strong>Legend:</strong>
+        <span style="color:#FFA500; font-weight:bold;">● Pending</span>
+        <span style="color:#378006; font-weight:bold; margin-left:10px;">● Confirmed</span>
+        <span style="color:#1E90FF; font-weight:bold; margin-left:10px;">● Rescheduled</span>
+        <span style="color:#6c757d; font-weight:bold; margin-left:10px;">● Completed</span>
+    </div>
+
+    <div id="calendar"></div>
+
+    <!-- FullCalendar CSS & JS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <style>
+    #calendar {
+      max-width: 900px;
+      margin: 1em auto;
+    }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          var calendarEl = document.getElementById('calendar');
+
+          var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'timeGridWeek',
+            allDaySlot: false,
+            height: 'auto',
+            slotMinTime: "09:00:00",
+            slotMaxTime: "16:00:00",
+            slotDuration: '01:00:00',
+            businessHours: {
+              daysOfWeek: [1,2,3,4,5,6], // Weekdays: Mon-Sat
+              startTime: '09:00',
+              endTime: '17:00'
+            },
+            events: "{% url 'admin:bookings_booking_calendar_events' %}",
+            headerToolbar: {
+              left: 'prev,next today',
+              center: 'title',
+              right: 'timeGridWeek,timeGridDay'
+            },
+            nowIndicator: true,
+            {#height: 'auto',#}
+          });
+
+          calendar.render();
+        });
+    </script>
+{% endblock %}
