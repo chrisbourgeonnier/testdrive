@@ -61,6 +61,7 @@ class BookingAdmin(admin.ModelAdmin):
             'confirmed': '#378006',  # green
             'rescheduled': '#1E90FF',  # dodger blue
             'completed': '#6c757d',  # gray
+            'canceled': '#FF0000'  # red
         }
         bookings = Booking.objects.order_by('requested_date', 'requested_time')
         events = []
@@ -70,7 +71,7 @@ class BookingAdmin(admin.ModelAdmin):
                 end_dt = start_dt + datetime.timedelta(minutes=60)  # assuming 60 min slots
                 color = status_color_map.get(b.status, '#000000')  # fallback to black
                 events.append({
-                    'title': f'{b.vehicle} - {b.guest_name or "Guest"}',
+                    'title': f'{b.vehicle} - {b.guest_name or "Guest"} [{b.status.capitalize()}]',
                     'start': start_dt.isoformat(),
                     'end': end_dt.isoformat(),
                     'color': color,  # green color or customize as needed
