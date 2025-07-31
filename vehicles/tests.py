@@ -242,7 +242,7 @@ class VehicleAdminTests(TestCase):
         # Check that the custom import button is present
         self.assertIn(b"Update Inventory", response.content,
                       msg="❌ 'Update Inventory' button should be present in vehicle admin.")
-        self.assertIn(b"&#128259;", response.content,  # 🔃 emoji
+        self.assertIn("🔃".encode('utf-8'), response.content,  # 🔃 emoji
                       msg="❌ Import button emoji should be present in vehicle admin.")
 
     def test_admin_import_endpoint_requires_login(self):
