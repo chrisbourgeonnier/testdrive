@@ -21,5 +21,8 @@ requests~=2.32.4
 # Captcha for forms
 django-simple-captcha~=0.6.2
 
+# Testing
+pytest~=7.4.3
+
 # Decoupling settings
 python-decouple==3.8
