@@ -1,0 +1,31 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Test Drive Rescheduled - Richmonds{% endblock %}
+
+{% block content %}
+<h2 style="color: #1E90FF;">Your Test Drive Has Been Rescheduled</h2>
+
+<p>Dear {{ customer_name }},</p>
+
+<p>We need to reschedule your upcoming test drive appointment. We apologize for any inconvenience this may cause.</p>
+
+<div class="booking-details">
+    <h3 style="margin-top: 0;">Updated Appointment:</h3>
+    <p><strong>Vehicle:</strong> {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+    <p><strong>New Date:</strong> {{ booking.requested_date|date:"l, F j, Y" }}</p>
+    <p><strong>New Time:</strong> {{ booking.requested_time|time:"g:i A" }}</p>
+    <p><strong>Location:</strong> Richmonds Automotive Group</p>
+    <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+</div>
+
+{% if staff_notes %}
+<p><strong>Reason for rescheduling:</strong><br>{{ staff_notes }}</p>
+{% endif %}
+
+<p>If this new time doesn't work for you, please contact us at 08 8366 2210 to arrange an alternative.</p>
+
+<p>Thank you for your understanding.</p>
+
+<p>Best regards,<br>
+<strong>The Richmonds Team</strong></p>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Test Drive Canceled - Richmonds{% endblock %}
+
+{% block content %}
+<h2 style="color: #dc3545;">Test Drive Appointment Canceled</h2>
+
+<p>Dear {{ customer_name }},</p>
+
+<p>We regret to inform you that your test drive appointment has been <strong>canceled</strong>.</p>
+
+<div class="booking-details">
+    <h3 style="margin-top: 0;">Canceled Appointment:</h3>
+    <p><strong>Vehicle:</strong> {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+    <p><strong>Original Date:</strong> {{ booking.requested_date|date:"l, F j, Y" }}</p>
+    <p><strong>Original Time:</strong> {{ booking.requested_time|time:"g:i A" }}</p>
+    <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+</div>
+
+{% if staff_notes %}
+<p><strong>Reason for cancellation:</strong><br>{{ staff_notes }}</p>
+{% endif %}
+
+<p>We apologize for any inconvenience. If you'd like to schedule a new appointment, please visit our website or contact us at 08 8366 2210.</p>
+
+<a href="https://testdrive.richmonds.com.au" class="button">Book Another Test Drive</a>
+
+<p>Thank you for your interest in Richmonds.</p>
+
+<p>Best regards,<br>
+<strong>The Richmonds Team</strong></p>
+{% endblock %}
