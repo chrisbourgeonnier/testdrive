@@ -26,3 +26,7 @@ pytest~=7.4.3
 
 # Decoupling settings
 python-decouple==3.8
+
+# Testing
+pytest~=7.4.3
+pytest-django~=4.5.2
