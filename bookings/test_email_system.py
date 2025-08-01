@@ -290,8 +290,8 @@ class EmailDeliveryServiceTests(TestCase):
         service = EmailService()
 
         # Check default configuration
-        self.assertEqual(service.from_email, 'noreply@richmonds.com.au')
-        self.assertEqual(service.staff_email, 'bookings@richmonds.com.au')
+        self.assertEqual(service.from_email, 'richmonds.test.staff@gmail.com')
+        self.assertEqual(service.staff_email, 'richmonds.test.notification@gmail.com')
 
     def test_send_booking_confirmation_success(self):
         """Test successful booking confirmation email delivery."""
@@ -305,7 +305,7 @@ class EmailDeliveryServiceTests(TestCase):
         # Verify email content
         email = mail.outbox[0]
         self.assertEqual(email.to, ['alex@example.com'])
-        self.assertEqual(email.from_email, 'noreply@richmonds.com.au')
+        self.assertEqual(email.from_email, 'richmonds.test.staff@gmail.com')
         self.assertIn('Test Drive Booking Confirmation', email.subject)
         self.assertIn('Mercedes C63 AMG', email.subject)
 
@@ -390,7 +390,7 @@ class EmailDeliveryServiceTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
         email = mail.outbox[0]
-        self.assertEqual(email.to, ['bookings@richmonds.com.au'])
+        self.assertEqual(email.to, ['richmonds.test.notification@gmail.com'])
         self.assertIn('New Test Drive Booking', email.subject)
         self.assertIn('Alex Johnson', email.body)
         self.assertIn('alex@example.com', email.body)
@@ -556,7 +556,7 @@ class BookingConfirmationNotificationTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
         self.assertEqual(email.to, ['lisa@example.com'])
-        self.assertEqual(email.from_email, 'noreply@richmonds.com.au')
+        self.assertEqual(email.from_email, 'richmonds.test.staff@gmail.com')
 
         # Clear outbox for next test
         mail.outbox = []
@@ -603,7 +603,7 @@ class BookingConfirmationNotificationTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         staff_email = mail.outbox[0]
 
-        self.assertEqual(staff_email.to, ['bookings@richmonds.com.au'])
+        self.assertEqual(staff_email.to, ['richmonds.test.notification@gmail.com'])
         self.assertIn('New Test Drive Booking', staff_email.subject)
         self.assertIn('Rachel Green', staff_email.body)
         self.assertIn('rachel@example.com', staff_email.body)
@@ -910,7 +910,7 @@ class EmailSystemIntegrationTests(TestCase):
 
         # Verify initial emails
         customer_emails = [e for e in mail.outbox if 'james@mi6.gov.uk' in e.to]
-        staff_emails = [e for e in mail.outbox if 'bookings@richmonds.com.au' in e.to]
+        staff_emails = [e for e in mail.outbox if 'richmonds.test.notification@gmail.com' in e.to]
 
         self.assertEqual(len(customer_emails), 1)
         self.assertEqual(len(staff_emails), 1)
