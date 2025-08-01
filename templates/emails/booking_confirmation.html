@@ -1,0 +1,33 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Test Drive Booking Confirmation - Richmonds{% endblock %}
+
+{% block content %}
+<h2 style="color: #dd0000;">Test Drive Booking Received</h2>
+
+<p>Dear {{ customer_name }},</p>
+
+<p>Thank you for your interest in test driving one of our exclusive vehicles. We have received your booking request and it is currently <strong>pending confirmation</strong> from our team.</p>
+
+<div class="booking-details">
+    <h3 style="margin-top: 0;">Booking Details:</h3>
+    <p><strong>Vehicle:</strong> {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+    <p><strong>Requested Date:</strong> {{ booking.requested_date|date:"l, F j, Y" }}</p>
+    <p><strong>Requested Time:</strong> {{ booking.requested_time|time:"g:i A" }}</p>
+    <p><strong>Contact Email:</strong> {{ customer_email }}</p>
+    <p><strong>Phone:</strong> {{ customer_phone }}</p>
+    <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+</div>
+
+<p><strong>What happens next?</strong></p>
+<ul>
+    <li>Our team will review your request within 24 hours</li>
+    <li>We'll confirm your appointment or suggest alternative times</li>
+    <li>You'll receive another email with confirmation details</li>
+</ul>
+
+<p>If you have any questions, please contact us at 08 8366 2210.</p>
+
+<p>Best regards,<br>
+<strong>The Richmonds Team</strong></p>
+{% endblock %}

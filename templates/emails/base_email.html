@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Richmonds Test Drive{% endblock %}</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <!-- Main container table for email client compatibility -->
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f4f4f4;">
+        <tr>
+            <td align="center" style="padding: 20px 0;">
+                <!-- Content table with max-width for desktop -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; margin: 0 auto;">
+
+                    <!-- Header Section -->
+                    <tr>
+                        <td align="center" style="padding: 30px 20px; border-bottom: 3px solid #dd0000;">
+                            <h1 style="color: #dd0000; margin: 0; font-size: 28px; font-weight: bold;">RICHMONDS</h1>
+                            <p style="margin: 5px 0 0 0; color: #666; font-size: 14px;">Classic & Prestige Vehicles</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content Section -->
+                    <tr>
+                        <td style="padding: 30px 20px; background-color: #f9f9f9;">
+                            {% block content %}
+                            <!-- Email content goes here -->
+                            {% endblock %}
+                        </td>
+                    </tr>
+
+                    <!-- Footer Section -->
+                    <tr>
+                        <td align="center" style="padding: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
+                            <p style="margin: 0;">&copy; 2025 Richmonds Automotive Group<br>
+                            <a href="https://richmonds.com.au" style="color: #dd0000; text-decoration: none;">richmonds.com.au</a> | 08 8366 2210</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Responsive styles -->
+    <style>
+        @media (max-width: 600px) {
+            .responsive-table {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .mobile-padding {
+                padding: 15px !important;
+            }
+        }
+        .booking-details {
+            background-color: white;
+            padding: 15px;
+            border-left: 4px solid #dd0000;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #dd0000;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</body>
+</html>

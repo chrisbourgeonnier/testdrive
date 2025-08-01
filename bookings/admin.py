@@ -2,9 +2,27 @@ from django.urls import path, reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib import admin
+from .models import Booking, EmailLog
 from .models import Booking
 from django.utils.dateformat import format
+from .email_service import email_service
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Register EmailLog model for admin viewing
+@admin.register(EmailLog)
+class EmailLogAdmin(admin.ModelAdmin):
+    list_display = ['booking', 'email_type', 'recipient_email', 'sent_successfully', 'sent_at']
+    list_filter = ['email_type', 'sent_successfully', 'sent_at']
+    search_fields = ['recipient_email', 'subject', 'booking__id']
+    readonly_fields = ['booking', 'email_type', 'recipient_email', 'subject',
+                       'sent_successfully', 'error_message', 'sent_at']
+
+    def has_add_permission(self, request):
+        # Email logs are created automatically, don't allow manual creation
+        return False
 
 # Booking model with list filters and bulk actions
 @admin.register(Booking)
@@ -16,16 +34,115 @@ class BookingAdmin(admin.ModelAdmin):
     actions = ['mark_confirmed', 'mark_completed', 'mark_canceled']
 
     def mark_confirmed(self, request, queryset):
-        queryset.update(status='confirmed')
-    mark_confirmed.short_description = 'Mark selected bookings as Confirmed'
+        """
+        Bulk action to mark bookings as confirmed and send emails.
+        """
+        updated_count = 0
+        email_success_count = 0
+
+        for booking in queryset:
+            old_status = booking.status
+            booking.status = 'confirmed'
+            booking.save()
+            updated_count += 1
+
+            # Send status update email if status actually changed
+            if old_status != 'confirmed':
+                try:
+                    email_sent = email_service.send_booking_status_update(booking)
+                    if email_sent:
+                        email_success_count += 1
+                        logger.info(f"Confirmation email sent for booking #{booking.id}")
+                    else:
+                        logger.warning(f"Failed to send confirmation email for booking #{booking.id}")
+                except Exception as e:
+                    logger.error(f"Error sending confirmation email for booking #{booking.id}: {str(e)}")
+
+        # Show admin message with results
+        message = f"Updated {updated_count} booking(s) to confirmed."
+        if email_success_count > 0:
+            message += f" Sent {email_success_count} confirmation email(s)."
+        if email_success_count < updated_count:
+            message += f" {updated_count - email_success_count} email(s) failed to send."
+
+        self.message_user(request, message)
+
+    mark_confirmed.short_description = 'Mark selected bookings as Confirmed (with email)'
 
     def mark_completed(self, request, queryset):
-        queryset.update(status='completed')
+        """Mark bookings as completed (no email sent)."""
+        updated_count = queryset.update(status='completed')
+        self.message_user(request, f"Marked {updated_count} booking(s) as completed.")
+
     mark_completed.short_description = 'Mark selected bookings as Completed'
 
     def mark_canceled(self, request, queryset):
-        queryset.update(status='canceled')
-    mark_canceled.short_description = 'Mark selected bookings as Canceled'
+        """
+        Bulk action to mark bookings as canceled and send emails.
+        """
+        updated_count = 0
+        email_success_count = 0
+
+        for booking in queryset:
+            old_status = booking.status
+            booking.status = 'canceled'
+            booking.save()
+            updated_count += 1
+
+            # Send cancellation email if status actually changed
+            if old_status != 'canceled':
+                try:
+                    email_sent = email_service.send_booking_status_update(booking)
+                    if email_sent:
+                        email_success_count += 1
+                        logger.info(f"Cancellation email sent for booking #{booking.id}")
+                    else:
+                        logger.warning(f"Failed to send cancellation email for booking #{booking.id}")
+                except Exception as e:
+                    logger.error(f"Error sending cancellation email for booking #{booking.id}: {str(e)}")
+
+        message = f"Canceled {updated_count} booking(s)."
+        if email_success_count > 0:
+            message += f" Sent {email_success_count} cancellation email(s)."
+        if email_success_count < updated_count:
+            message += f" {updated_count - email_success_count} email(s) failed to send."
+
+        self.message_user(request, message)
+
+    mark_canceled.short_description = 'Mark selected bookings as Canceled (with email)'
+
+    def save_model(self, request, obj, form, change):
+        """
+        Override save_model to send emails when individual booking status changes.
+
+        This is called when a staff member edits a booking individually.
+        """
+        # Get the old status if this is an update
+        old_status = None
+        if change and obj.pk:
+            try:
+                old_booking = Booking.objects.get(pk=obj.pk)
+                old_status = old_booking.status
+            except Booking.DoesNotExist:
+                old_status = None
+
+        # Save the booking
+        super().save_model(request, obj, form, change)
+
+        # Send email if status changed to confirmed, rescheduled, or canceled
+        if change and old_status and old_status != obj.status:
+            if obj.status in ['confirmed', 'rescheduled', 'canceled']:
+                try:
+                    email_sent = email_service.send_booking_status_update(obj)
+                    if email_sent:
+                        self.message_user(request, f"Booking status updated and email sent to customer.")
+                        logger.info(f"Status update email sent for booking #{obj.id} (status: {obj.status})")
+                    else:
+                        self.message_user(request, f"Booking status updated but email failed to send.", level='WARNING')
+                        logger.warning(f"Failed to send status update email for booking #{obj.id}")
+                except Exception as e:
+                    self.message_user(request, f"Booking status updated but email error: {str(e)}", level='ERROR')
+                    logger.error(f"Error sending status update email for booking #{obj.id}: {str(e)}")
 
     # FullCalendar logic
     change_list_template = "admin/bookings/booking/change_list.html"

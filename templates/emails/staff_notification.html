@@ -1,0 +1,29 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}New Test Drive Booking - Staff Notification{% endblock %}
+
+{% block content %}
+<h2 style="color: #dd0000; margin-top: 0;">New Test Drive Booking Request</h2>
+
+<p>A new test drive booking has been submitted and requires review.</p>
+
+<div class="booking-details">
+    <h3 style="margin-top: 0;">Booking Details:</h3>
+    <p><strong>Customer:</strong> {{ customer_name }}</p>
+    <p><strong>Email:</strong> {{ customer_email }}</p>
+    <p><strong>Phone:</strong> {{ customer_phone }}</p>
+    <p><strong>Vehicle:</strong> {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+    <p><strong>Requested Date:</strong> {{ booking.requested_date|date:"l, F j, Y" }}</p>
+    <p><strong>Requested Time:</strong> {{ booking.requested_time|time:"g:i A" }}</p>
+    <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+    <p><strong>Submitted:</strong> {{ booking.created_at|date:"M j, Y g:i A" }}</p>
+</div>
+
+<p><strong>Action Required:</strong> Please review and confirm this booking in the admin panel.</p>
+
+<p><strong>Admin Link:</strong> /admin/bookings/booking/{{ booking.id }}/change/</p>
+
+<a href="http://localhost:8000/admin/bookings/booking/{{ booking.id }}/change/" class="button">Review Booking</a>
+
+<p>This is an automated notification from the Test Drive Booking System.</p>
+{% endblock %}

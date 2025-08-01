@@ -1,0 +1,42 @@
+{% extends "emails/base_email.html" %}
+
+{% block title %}Test Drive Confirmed - Richmonds{% endblock %}
+
+{% block content %}
+<h2 style="color: #28a745;">Your Test Drive is Confirmed!</h2>
+
+<p>Dear {{ customer_name }},</p>
+
+<p>Great news! Your test drive appointment has been <strong>confirmed</strong> by our team.</p>
+
+<div class="booking-details">
+    <h3 style="margin-top: 0;">Confirmed Appointment:</h3>
+    <p><strong>Vehicle:</strong> {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</p>
+    <p><strong>Date:</strong> {{ booking.requested_date|date:"l, F j, Y" }}</p>
+    <p><strong>Time:</strong> {{ booking.requested_time|time:"g:i A" }}</p>
+    <p><strong>Location:</strong> Richmonds Automotive Group<br>
+    123 Main Street, Adelaide SA 5000</p>
+    <p><strong>Booking ID:</strong> #{{ booking.id }}</p>
+</div>
+
+<p><strong>Please bring:</strong></p>
+<ul>
+    <li>Valid driver's license</li>
+    <li>Photo identification</li>
+    <li>This confirmation email</li>
+</ul>
+
+<p><strong>Important:</strong> Please arrive 10 minutes early for a brief orientation.</p>
+
+{% if staff_notes %}
+<p><strong>Additional Notes:</strong><br>{{ staff_notes }}</p>
+{% endif %}
+
+<a href="https://richmonds.com.au" class="button">View Full Vehicle Details</a>
+
+<p>We look forward to seeing you!</p>
+
+<p>Best regards,<br>
+<strong>The Richmonds Team</strong><br>
+08 8366 2210</p>
+{% endblock %}
