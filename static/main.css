@@ -66,13 +66,27 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 2.5rem;
 }
 
 .vehicle-details {
   display: flex;
   align-items: center;
   margin: auto;
-  gap: 40px;
+  gap: 10%;
+}
+
+.vehicle-photo {
+  max-width: 600px;
+  width: 100%;
+  height: auto; /* maintain aspect ratio */
+  display: block;
+  margin: 0 auto;
+}
+
+.vehicle-details p {
+  padding: 5px 0;
+  min-width: 15rem;
 }
 
 .testdrive-btn {
@@ -111,3 +125,20 @@ body {
 #calendar .fc-highlight {
   background-color: #3030ff;
 }
+
+
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  .vehicle-details {
+    flex-direction: column;
+    align-items: flex-start; /* or center, depending on your preference */
+    gap: 1.5rem; /* adjust gap when stacked */
+  }
+}
+
+/*@media (max-width: 1023px) {*/
+/*  .vehicle-photo {*/
+/*    width: 60%;  !* relative to container *!*/
+/*    max-width: none; !* disable the max-width limit *!*/
+/*  }*/
+/*}*/

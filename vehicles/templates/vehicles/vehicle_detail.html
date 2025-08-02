@@ -4,10 +4,9 @@
         <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
         <div class="vehicle-details">
             <div>
-                <img src="{{ vehicle.photo_link }}" style="max-width:600px;" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                <img src="{{ vehicle.photo_link }}" class="vehicle-photo" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
             </div>
             <div>
-                <p><strong>Price:</strong> ${{ vehicle.price }}</p>
                 <p><strong>Year:</strong> {{ vehicle.year }} </p>
                 <p><strong>Odometer:</strong>
                     {% if vehicle.km == 0 %}
@@ -24,6 +23,7 @@
                     {% endif %}
                 </p>
                 <p><strong>Transmission:</strong> {{ vehicle.transmission }} </p>
+                <p><strong>Price:</strong> ${{ vehicle.price }}</p>
                 <p><a href="{% url 'create_booking' %}?vehicle={{ vehicle.pk }}" class="testdrive-btn">Book a Test Drive</a></p>
             </div>
         </div>
