@@ -147,7 +147,7 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')  # Reads from .env
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')  # Reads from .env
 
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
-STAFF_NOTIFICATION_EMAIL = config('STAFF_NOTIFICATION_EMAIL', default='bookings@richmonds.com.au')
+STAFF_NOTIFICATION_EMAIL = config('STAFF_NOTIFICATION_EMAIL')
 
 # Email template settings
 EMAIL_USE_TLS = True
