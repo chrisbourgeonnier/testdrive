@@ -59,7 +59,6 @@ class Command(BaseCommand):
                 'year': year,
                 'km': 0,
                 'engine_size': 0,
-                # 'cylinders': '',
                 'transmission': '',
                 'price': 0,
                 'photo_link': photo_link,
