@@ -1,13 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
-  <p><strong>Price:</strong> ${{ vehicle.price }}</p>
-  <img src="{{ vehicle.photo_link }}" style="max-width:600px;" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+    <div class="vehicle-container">
+        <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
+        <div class="vehicle-details">
+            <div>
+                <img src="{{ vehicle.photo_link }}" style="max-width:600px;" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+            </div>
+            <div>
+                <p><strong>Price:</strong> ${{ vehicle.price }}</p>
+                <p><strong>Year:</strong> {{ vehicle.year }} </p>
+                <p><strong>Odometer:</strong>
+                    {% if vehicle.km == 0 %}
+                        N/A
+                    {% else %}
+                        {{ vehicle.km }} km
+                    {% endif %}
+                </p>
+                <p><strong>Engine Size:</strong>
+                    {% if vehicle.engine_size == 0 %}
+                        N/A
+                    {% else %}
+                        {{ vehicle.engine_size }} cc
+                    {% endif %}
+                </p>
+                <p><strong>Transmission:</strong> {{ vehicle.transmission }} </p>
+                <p><a href="{% url 'create_booking' %}?vehicle={{ vehicle.pk }}" class="testdrive-btn">Book a Test Drive</a></p>
+            </div>
+        </div>
+    </div>
   <p>{{ vehicle.description }}</p>
-  <p><strong>Year:</strong> {{ vehicle.year }} </p>
-  <p><strong>Odometer:</strong> {{ vehicle.km }} km</p>
-  <p><strong>Engine Size:</strong> {{ vehicle.engine_size }} cc</p>
-  <p><strong>Transmission:</strong> {{ vehicle.transmission }} </p>
-  <p><a href="{% url 'create_booking' %}?vehicle={{ vehicle.pk }}">Book a Test Drive</a></p>
   <p><a href="{{ vehicle.link }}" target="_blank">More details and photos here</a></p>
 {% endblock %}
