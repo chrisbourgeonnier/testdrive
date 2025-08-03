@@ -1,0 +1,65 @@
+/* Container for the login page */
+.login-container {
+  max-width: 400px;
+  margin: 2rem auto 3rem;
+  background: white;
+  padding: 2rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* Sections */
+.login-section {
+  margin-bottom: 2rem;
+}
+
+.login-section h2 {
+  margin-bottom: 1rem;
+  color: #dd0000;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+
+/* Forms */
+.login-form label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.login-form input[type="email"],
+.login-form input[type="text"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.login-links {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-links a {
+  color: #dd0000;
+  text-decoration: none;
+  margin: 0 8px;
+  font-weight: 600;
+}
+.login-links a:hover,
+.login-links a:focus {
+  text-decoration: underline;
+}
+
+/* Horizontal line style */
+hr {
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 2rem 0;
+}
