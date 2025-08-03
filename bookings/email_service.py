@@ -16,8 +16,8 @@ class EmailService:
     """Central service for handling all email operations with logging."""
 
     def __init__(self):
-        self.from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@richmonds.com.au')
-        self.staff_email = getattr(settings, 'STAFF_NOTIFICATION_EMAIL', 'bookings@richmonds.com.au')
+        self.from_email = getattr(settings, 'DEFAULT_FROM_EMAIL')
+        self.staff_email = getattr(settings, 'STAFF_NOTIFICATION_EMAIL')
 
     def _log_email(self, booking, email_type: str, recipient_email: str,
                    subject: str, success: bool, error_message: str = '') -> None:
