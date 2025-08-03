@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'main.css' %}">
     <link rel="stylesheet" href="{% static 'banner.css' %}">
+    <link rel="stylesheet" href="{% static 'login.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Optionally add Bootstrap or other frameworks if using -->
@@ -51,11 +52,10 @@
               <li><a href="{% url 'vehicle_list' %}">HOME</a></li>
 {#              <li><a href="{% url 'create_booking' %}">Book a Test Drive</a></li>#}
               <li><a href="https://richmonds.com.au/">RICHMONDS.COM.AU</a></li>
-                <li><a href="/login" class="login">LOG IN</a></li>
+                <li><a href="{% url 'login' %}" class="login">LOG IN</a></li>
             </ul>
           </nav>
         </div>
-        <hr>
     </header>
 
     <main class="container">

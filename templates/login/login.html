@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+{#<h1 class="entry-title" style="text-align:center; margin-bottom: 30px;">Log In</h1>#}
+
+<div class="login-container">
+
+  <!-- User Login Section -->
+  <section class="login-section user-login">
+    <h2>User Log In</h2>
+    <form method="post" action="#" class="login-form">
+      {% csrf_token %}
+      <label for="user-email">Email</label>
+      <input type="email" id="user-email" name="email" placeholder="Enter your email" required><br>
+
+      <label for="user-password">Password</label>
+      <input type="password" id="user-password" name="password" placeholder="Enter your password" required><br>
+
+      <button type="submit" class="testdrive-btn">Log In</button>
+    </form>
+
+    <div class="login-links">
+      <a href="#" title="Create a new account">Create a new account</a> |
+      <a href="#" title="Forgot password">Forgot my password</a>
+    </div>
+  </section>
+
+  <hr>
+
+  <!-- Employee Login Section -->
+  <section class="login-section employee-login">
+    <h2>Employee Log In</h2>
+    <form method="post" action="{% url 'admin:login' %}" class="login-form">
+      {% csrf_token %}
+      <label for="employee-username">Username</label>
+      <input type="text" id="employee-username" name="username" placeholder="Your username" required autofocus><br>
+
+      <label for="employee-password">Password</label>
+      <input type="password" id="employee-password" name="password" placeholder="Your password" required><br>
+
+      <input type="hidden" name="next" value="/admin/">
+
+      <button type="submit" class="testdrive-btn" style="background-color: black !important;">Employee Log In</button>
+    </form>
+  </section>
+
+</div>
+
+{% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'vehicles',
     'bookings',
     'captcha',
+    'accounts',
 ]
 
 MIDDLEWARE = [

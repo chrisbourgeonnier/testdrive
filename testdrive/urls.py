@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('vehicles.urls')),             # Homepage is the vehicles' catalogue
     path('bookings/', include('bookings.urls')),    # Bookings route
     path('captcha/', include('captcha.urls')),      # Captcha route for booking verification
+    path('accounts/', include('accounts.urls')),    # Accounts route for login, logout, etc.
 ]
 
 if settings.DEBUG:  # Needed for serving media during development
