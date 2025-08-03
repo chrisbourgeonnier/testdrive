@@ -135,10 +135,3 @@ body {
     gap: 1.5rem; /* adjust gap when stacked */
   }
 }
-
-/*@media (max-width: 1023px) {*/
-/*  .vehicle-photo {*/
-/*    width: 60%;  !* relative to container *!*/
-/*    max-width: none; !* disable the max-width limit *!*/
-/*  }*/
-/*}*/
