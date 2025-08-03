@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin-custom.css' %}">
+{% endblock %}
+
+{% block branding %}
+  <div class="custom-admin-header">
+    <img src="{% static 'favicon.png' %}" alt="Logo" class="custom-admin-logo">
+    <h1 class="custom-admin-title">Richmonds Dashboard</h1>
+  </div>
+{% endblock %}

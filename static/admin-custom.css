@@ -1,0 +1,53 @@
+/* Custom Admin Banner */
+.custom-admin-header {
+  /*background: #282830;*/
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 28px;
+  border-bottom: 5px solid #dd0000;
+}
+.custom-admin-logo {
+  height: 48px;
+  width: auto;
+}
+.custom-admin-title {
+  font-size: 2rem;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: var(--richmonds-white); /* A white accent */
+  margin: 0;
+}
+
+/* Change admin’s main color palette */
+:root {
+  --richmonds-red: #dd0000;
+  --richmonds-white: #fff;
+  --richmonds-black: #000000;
+}
+
+#header, .module caption {
+  background: var(--richmonds-black) !important;
+  color: var(--richmonds-white) !important;
+}
+
+a.button {
+  background: var(--richmonds-red) !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+.breadcrumbs {
+  background: #333 !important;
+}
+
+#icon-sun,
+#icon-moon,
+#icon-auto{
+  color: var(--richmonds-black) !important;
+}
+
+#content {
+  margin: auto;
+}
