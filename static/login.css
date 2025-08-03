@@ -28,6 +28,10 @@
   margin-bottom: 0.25rem;
 }
 
+.login-section h2 {
+  text-align: center;
+}
+
 .login-form input[type="email"],
 .login-form input[type="text"],
 .login-form input[type="password"] {
@@ -62,4 +66,10 @@ hr {
   border: 0;
   border-top: 1px solid #ccc;
   margin: 2rem 0;
+}
+
+/* Override Button style to be centered*/
+.login-form button.testdrive-btn {
+  display: block;
+  margin: 0 auto;
 }
