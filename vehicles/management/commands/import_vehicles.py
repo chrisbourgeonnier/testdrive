@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from vehicles.models import Vehicle
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 import requests
 import re
 
@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
             car_link = link_a['href']
             title = link_a.get('title') or link_a.text.strip()
-            # Note: car_link should be unique in your DB
+            # Note: car_link should be unique in DB
             img_tag = link_a.find('img')
             photo_link = img_tag['data-src'] if img_tag and 'data-src' in img_tag.attrs else ""
 
@@ -47,6 +47,13 @@ class Command(BaseCommand):
                 self.stderr.write(f"No vehicle details found at {car_link}")
                 continue
 
+            if postclass_div:
+                # Find the first <a> tag inside the postclass div
+                a_tag = postclass_div.find('a')
+                if a_tag and 'href' in a_tag.attrs:
+                    photo_link = a_tag['href']
+
+
             table = postclass_div.find('table')
             if not table:
                 self.stderr.write(f"No detail table found at {car_link}")
@@ -59,12 +66,11 @@ class Command(BaseCommand):
                 'year': year,
                 'km': 0,
                 'engine_size': 0,
-                # 'cylinders': '',
                 'transmission': '',
                 'price': 0,
                 'photo_link': photo_link,
                 'link': car_link,
-                # 'description': '', # Optionally parse further down
+                'description': '',
                 'is_active': True,
             }
 
@@ -95,23 +101,33 @@ class Command(BaseCommand):
                         detail_data['engine_size'] = int(re.sub(r'[^\d]', '', value))
                     except ValueError:
                         detail_data['engine_size'] = 0
-                # elif label == 'cylinders':
-                #     try:
-                #         detail_data['cylinders'] = value
-                #     except ValueError:
-                #         detail_data['cylinders'] = 0
                 elif label == 'transmission':
                     detail_data['transmission'] = value
                 elif label == 'price':
                     # Example: '$41,900'
                     detail_data['price'] = int(re.sub(r'[^\d]', '', value))
 
-            # Optionally extract a nice description
-            desc_tag = car_soup.select_one('div.entry-content p')
-            if desc_tag:
-                detail_data['description'] = desc_tag.get_text(strip=True)
+            # Parse 5 paragraphs of description
+            # Find the two <hr> tags inside postclass_div
+            hrs = postclass_div.find_all('hr')
+            if len(hrs) < 2:
+                description = ""  # Not enough <hr> tags found
             else:
-                detail_data['description'] = title  # fallback
+                start_hr, end_hr = hrs[0], hrs[1]
+
+                count = 0
+                paragraphs = []
+                current = start_hr.next_sibling
+
+                while current and current != end_hr and count < 3:
+                    if isinstance(current, Tag) and current.name == 'p':
+                        paragraphs.append(current.get_text(strip=True))
+                        count += 1
+                    current = current.next_sibling
+
+                # Join the first 5 paragraph texts into a single string (with newlines or spaces)
+                description = "\n\n".join(paragraphs)
+                detail_data['description'] = description
 
             # Update or create the Vehicle
             vehicle, created = Vehicle.objects.update_or_create(

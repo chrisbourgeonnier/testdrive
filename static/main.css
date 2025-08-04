@@ -10,14 +10,15 @@ body {
 }
 
 .container {
-  max-width: 1240px;
+  max-width: 1024px;
   margin: 0 auto;
   padding: 0 16px;
 }
 
+/*VEHICLE_LIST DISPLAY*/
 .car-listings {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
   gap: 28px;
 }
 
@@ -49,24 +50,88 @@ body {
 }
 
 .car-details {
-  padding: 18px 20px 14px 20px;
+  padding: 5px 10px;
 }
 
 .car-details h2 {
   font-size: 1.2rem;
   font-weight: 500;
-  margin-bottom: 10px;
+  /*margin-bottom: 10px;*/
   color: #232323;
 }
 
+/*VEHICLE_DETAIL DISPLAY*/
+
+.vehicle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.vehicle-details {
+  display: flex;
+  align-items: center;
+  margin: auto;
+  gap: 10%;
+}
+
+.vehicle-photo {
+  max-width: 600px;
+  width: 100%;
+  height: auto; /* maintain aspect ratio */
+  display: block;
+  margin: 0 auto;
+}
+
+.vehicle-details p {
+  padding: 5px 0;
+  min-width: 15rem;
+}
+
+.testdrive-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: #dd0000;  /* Richmonds red */
+  color: #fff !important;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.16rem;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.17s, color 0.17s;
+  margin-top: 22px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px 0 rgba(100,0,0,0.11);
+}
+.testdrive-btn:hover, .testdrive-btn:focus {
+  background-color: #b10000;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+
+/*FORM DISPLAY*/
 .form {
   margin: auto;
 }
 
+
+/*FULLCALENDAR.JS*/
 #calendar {
   max-width: 600px;
 }
 
 #calendar .fc-highlight {
   background-color: #3030ff;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  .vehicle-details {
+    flex-direction: column;
+    align-items: flex-start; /* or center, depending on your preference */
+    gap: 1.5rem; /* adjust gap when stacked */
+  }
 }
