@@ -16,6 +16,7 @@ class CreateBookingView(CreateView):
     template_name = 'bookings/booking_form.html'
     success_url = reverse_lazy('booking_thanks')
 
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         vehicle_pk = self.request.GET.get('vehicle')
@@ -78,6 +79,9 @@ class CreateBookingView(CreateView):
 
         return response
 
+def form_invalid(self, form):
+        print("❌ FORM INVALID ERRORS:", form.errors)
+        return super().form_invalid(form)
 
 class BookingThanksView(TemplateView):
     template_name = 'bookings/booking_thanks.html'

@@ -8,24 +8,41 @@
   {% endif %}
 
   <form class="form" method="post" id="booking-form">
-    {% csrf_token %}
-    {{ form.vehicle }}
-
+  {% csrf_token %}
+  {% if form.non_field_errors %}
+      <div style="color: red; font-weight: bold;">
+          {{ form.non_field_errors }}
+          </div>
+      {% endif %}
     <p>
       {{ form.guest_name.label_tag }}
       {{ form.guest_name }}
+        {% if form.guest_name.errors %}
+        <span style="color: red;">{{ form.guest_name.errors.0 }}</span>
+        {% endif %}
     </p>
     <p>
       {{ form.guest_email.label_tag }}
       {{ form.guest_email }}
-    </p>
+        {% if form.guest_email.errors %}
+          <span style="color: red;">{{ form.guest_email.errors.0 }}</span>
+        {% endif %}
+   </p>
+
     <p>
       {{ form.guest_phone.label_tag }}
       {{ form.guest_phone }}
+        {% if form.guest_phone.errors %}
+         <span style="color: red;">{{ form.guest_phone.errors.0 }}</span>
+        {% endif %}
     </p>
+
     <p>
       {{ form.dob.label_tag }}
       {{ form.dob }}
+        {% if form.dob.errors %}
+         <span style="color: red;">{{ form.dob.errors.0 }}</span>
+        {% endif %}
     </p>
 
     <!-- Hidden booking date/time fields (populated via FullCalendar interaction) -->
@@ -39,6 +56,9 @@
     <p>
       {{ form.captcha.label_tag }}<br>
       {{ form.captcha }}
+        {% if form.captcha.errors %}
+        <span style="color: red;">{{ form.captcha.errors.0 }}</span>
+        {% endif %}
     </p>
 
     <button type="submit" id="submit-button" disabled>Submit Booking</button>
