@@ -43,8 +43,8 @@ class BookingForm(forms.ModelForm):
         Disallows numbers, symbols, or empty input.
         """
         name = self.cleaned_data['guest_name']
-        if not re.match(r'^[A-Za-z\s]+$', name):
-            raise forms.ValidationError("Name must contain only letters and spaces.")
+        if not re.match(r"^[A-Za-z\s'\-\.]+$", name):
+            raise forms.ValidationError( "Name may contain only letters, spaces, apostrophes ('), hyphens (-), and periods (.)")
         return name
 
     def clean_guest_phone(self):
@@ -69,6 +69,15 @@ class BookingForm(forms.ModelForm):
         if age < 25:
             raise forms.ValidationError("You must be at least 25 years old to book a test drive.")
         return dob
+
+    def clean_guest_email(self):
+        """
+        Validates that the email address is well-formed.
+        """
+        email = self.cleaned_data['guest_email']
+        if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$', email):
+            raise forms.ValidationError("Enter a valid email address.")
+        return email
 
     # ------------------------------------
     # Django Meta configuration
