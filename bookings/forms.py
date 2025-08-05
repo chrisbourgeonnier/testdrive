@@ -43,7 +43,9 @@ class BookingForm(forms.ModelForm):
         Disallows numbers, symbols, or empty input.
         """
         name = self.cleaned_data['guest_name']
+        print("Inside in clean_guest_name")
         if not re.match(r"^[A-Za-z\s'\-\.]+$", name):
+            print("Inside in clean_guest_name: if not re.match")
             raise forms.ValidationError( "Name may contain only letters, spaces, apostrophes ('), hyphens (-), and periods (.)")
         return name
 
@@ -53,7 +55,9 @@ class BookingForm(forms.ModelForm):
         No letters or symbols are allowed.
         """
         phone = self.cleaned_data['guest_phone']
+        print("Inside in clean_guest_phone")
         if not re.match(r'^\d{10}$', phone):
+            print("Inside in clean_guest_phone: if not re.match")
             raise forms.ValidationError("Phone number must contain exactly 10 digits.")
         return phone
 
@@ -75,7 +79,9 @@ class BookingForm(forms.ModelForm):
         Validates that the email address is well-formed.
         """
         email = self.cleaned_data['guest_email']
+        print("Inside in clean_guest_email")
         if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w{2,}$', email):
+            print("Inside in clean_guest_email: if not re.match")
             raise forms.ValidationError("Enter a valid email address.")
         return email
 

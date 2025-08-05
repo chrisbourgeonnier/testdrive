@@ -79,9 +79,10 @@ class CreateBookingView(CreateView):
 
         return response
 
-def form_invalid(self, form):
+"""def form_invalid(self, form):
         print("❌ FORM INVALID ERRORS:", form.errors)
-        return super().form_invalid(form)
+        #return super().form_invalid(form)
+        return False"""
 
 class BookingThanksView(TemplateView):
     template_name = 'bookings/booking_thanks.html'
