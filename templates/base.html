@@ -52,7 +52,14 @@
               <li><a href="{% url 'vehicle_list' %}">HOME</a></li>
 {#              <li><a href="{% url 'create_booking' %}">Book a Test Drive</a></li>#}
               <li><a href="https://richmonds.com.au/">RICHMONDS.COM.AU</a></li>
-                <li><a href="{% url 'login' %}" class="login">LOG IN</a></li>
+
+                {% if user.is_authenticated %}
+                  <li><a href="{% url 'logout' %}" class="login">LOG OUT</a></li>
+                {% else %}
+                  <li><a href="{% url 'login' %}" class="login">LOG IN</a></li>
+                {% endif %}
+
+
             </ul>
           </nav>
         </div>

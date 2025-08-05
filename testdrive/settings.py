@@ -153,3 +153,9 @@ STAFF_NOTIFICATION_EMAIL = config('STAFF_NOTIFICATION_EMAIL')
 # Email template settings
 EMAIL_USE_TLS = True
 EMAIL_TIMEOUT = 10  # seconds
+
+# Redirect after login
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+
