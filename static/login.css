@@ -73,3 +73,53 @@ hr {
   display: block;
   margin: 0 auto;
 }
+
+/* Registration Form */
+.registration-form {
+  display: grid;
+  grid-template-columns: 130px 1fr; /* Fixed label width, flexible input width */
+  gap: 10px 20px;                  /* Row gap 10px, column gap 20px */
+  align-items: center;             /* Vertically centers label and input */
+  max-width: 400px;                /* Optional max width */
+  margin: 0 auto;                  /* Center form on page */
+}
+
+.registration-form p {
+  margin: 0;
+  display: contents; /* Allows label/input to be direct children of grid */
+}
+
+.registration-form label {
+  justify-self: start;              /* Align labels left */
+  padding-top: 6px;                /* Vertical center adjustment */
+}
+
+.registration-form input,
+.registration-form select,
+.registration-form textarea {
+  width: 100%;                    /* Fields fill second column */
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.registration-form .login-error {
+  grid-column: 2;                 /* Span error message in input column */
+  color: #b50000;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+/* Button styles can remain as you defined */
+.registration-form button.testdrive-btn {
+  grid-column: 1 / span 2;
+  margin-top: 20px;
+  padding: 12px;
+}
+
+.registration-form button.testdrive-btn:hover,
+.registration-form button.testdrive-btn:focus {
+  background-color: #b10000;
+}

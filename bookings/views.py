@@ -5,7 +5,7 @@ from .models import Booking
 from .forms import BookingForm
 from django.urls import reverse_lazy
 from vehicles.models import Vehicle
-from .email_service import email_service  # Import our email service
+from .email_service import email_service
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,16 +16,39 @@ class CreateBookingView(CreateView):
     template_name = 'bookings/booking_form.html'
     success_url = reverse_lazy('booking_thanks')
 
-
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         vehicle_pk = self.request.GET.get('vehicle')
+
         if vehicle_pk:
             try:
                 vehicle = Vehicle.objects.get(pk=vehicle_pk)
                 kwargs['vehicle'] = vehicle
             except Vehicle.DoesNotExist:
                 pass
+
+        # Add initial data for logged-in user to pre-fill booking form
+        if self.request.user.is_authenticated:
+            user = self.request.user
+            initial = kwargs.get('initial', {}).copy()
+            initial.update({
+                'guest_name': f"{user.first_name} {user.last_name}".strip(),
+                'guest_email': user.email,
+            })
+
+            # Try to get phone and dob from profile
+            try:
+                initial['guest_phone'] = user.profile.phone_number
+            except (AttributeError, UserProfile.DoesNotExist):
+                initial['guest_phone'] = ''
+
+            try:
+                initial['dob'] = user.profile.dob
+            except (AttributeError, UserProfile.DoesNotExist):
+                initial['dob'] = None
+
+            kwargs['initial'] = initial
+
         return kwargs
 
     def get_context_data(self, **kwargs):

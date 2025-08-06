@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
   <div class="login-container">
     <section class="login-section">
       <h2>Create Your Account</h2>
 
-      <form method="post">
+      <form method="post" class="registration-form">
           {% csrf_token %}
 
           {# Show any non-field errors at top #}
