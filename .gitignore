@@ -194,7 +194,7 @@ cython_debug/
 .cursorindexingignore
 
 # PyCharm idea files
-.idea/*
-!.idea/codeStyles
-!.idea/misc.xml
-!.idea/modules.xml
+.idea/
+#!.idea/codeStyles
+#!.idea/misc.xml
+#!.idea/modules.xml
