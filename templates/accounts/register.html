@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="login-container">
+    <section class="login-section">
+      <h2>Create Your Account</h2>
+
+      <form method="post">
+          {% csrf_token %}
+
+          {# Show any non-field errors at top #}
+          {% if form.non_field_errors %}
+            <div class="login-error" style="background:#ffdce0; color:#b50000; border:1px solid #e5a9aa; padding:10px 12px; margin-bottom:15px; border-radius:4px;">
+              {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <p>
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.username.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% if form.email.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.email.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.first_name.label_tag }}
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.first_name.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.last_name.label_tag }}
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.last_name.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.phone_number.label_tag }}
+            {{ form.phone_number }}
+            {% if form.phone_number.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.phone_number.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.dob.label_tag }}
+            {{ form.dob }}
+            {% if form.dob.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.dob.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.password1.label_tag }}
+            {{ form.password1 }}
+            {% if form.password1.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.password1.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p>
+            {{ form.password2.label_tag }}
+            {{ form.password2 }}
+            {% if form.password2.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.password2.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <p id="captcha">
+            {{ form.captcha.label_tag }}
+            <br>
+            {{ form.captcha }}
+            {% if form.captcha.errors %}
+              <span class="login-error" style="color:#b50000;">{{ form.captcha.errors|striptags }}</span>
+            {% endif %}
+          </p>
+
+          <button type="submit" class="testdrive-btn">Register</button>
+        </form>
+      <div class="login-links">
+        <a href="{% url 'login' %}">Already have an account? Log in</a>
+      </div>
+    </section>
+  </div>
+{% endblock %}

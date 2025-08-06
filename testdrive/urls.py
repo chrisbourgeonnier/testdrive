@@ -18,13 +18,18 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static                  # For static files
+from accounts.views import LogoutViewAllowGet
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),                # Admin route
     path('', include('vehicles.urls')),             # Homepage is the vehicles' catalogue
     path('bookings/', include('bookings.urls')),    # Bookings route
     path('captcha/', include('captcha.urls')),      # Captcha route for booking verification
+    path('accounts/logout/', LogoutViewAllowGet.as_view(next_page='/'), name='logout'),
     path('accounts/', include('accounts.urls')),    # Accounts route for login, logout, etc.
+
+
 ]
 
 if settings.DEBUG:  # Needed for serving media during development
