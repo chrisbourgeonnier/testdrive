@@ -1,52 +1,73 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-  <h1 class="entry-title">Book a Test Drive</h1>
 
-  {% if selected_vehicle %}
-    <p><strong>Vehicle: {{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
-  {% endif %}
+    <h1 class="entry-title">Book a Test Drive</h1>
 
-  <form class="form" method="post" id="booking-form">
-    {% csrf_token %}
-    {{ form.vehicle }}
+    <form class="form" method="post" id="booking-form">
+        {% csrf_token %}
+        {% if selected_vehicle %}
+            <p><strong>Vehicle: {{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
+            <input type="hidden" name="vehicle" value="{{ selected_vehicle.id }}">
+        {% endif %}
+        {% if form.non_field_errors %}
+            <div style="color: red; font-weight: bold;">
+              {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        <p>
+            {{ form.guest_name.label_tag }}
+            {{ form.guest_name }}
+            {% if form.guest_name.errors %}
+                <span style="color: red;">{{ form.guest_name.errors.0 }}</span>
+            {% endif %}
+        </p>
+        <p>
+            {{ form.guest_email.label_tag }}
+            {{ form.guest_email }}
+            {% if form.guest_email.errors %}
+                <span style="color: red;">{{ form.guest_email.errors.0 }}</span>
+            {% endif %}
+       </p>
 
-    <p>
-      {{ form.guest_name.label_tag }}
-      {{ form.guest_name }}
-    </p>
-    <p>
-      {{ form.guest_email.label_tag }}
-      {{ form.guest_email }}
-    </p>
-    <p>
-      {{ form.guest_phone.label_tag }}
-      {{ form.guest_phone }}
-    </p>
-    <p>
-      {{ form.dob.label_tag }}
-      {{ form.dob }}
-    </p>
+        <p>
+            {{ form.guest_phone.label_tag }}
+            {{ form.guest_phone }}
+            {% if form.guest_phone.errors %}
+                <span style="color: red;">{{ form.guest_phone.errors.0 }}</span>
+            {% endif %}
+        </p>
 
-    <!-- Hidden booking date/time fields (populated via FullCalendar interaction) -->
-    {{ form.requested_date }}
-    {{ form.requested_time }}
-    <p><strong>Choose your preferred date and time:</strong></p>
-    <div id="calendar"></div>
+        <p>
+            {{ form.dob.label_tag }}
+            {{ form.dob }}
+            {% if form.dob.errors %}
+                <span style="color: red;">{{ form.dob.errors.0 }}</span>
+            {% endif %}
+        </p>
 
-    <p id="selected-slot">No time selected</p>
+        <!-- Hidden booking date/time fields (populated via FullCalendar interaction) -->
+        {{ form.requested_date }}
+        {{ form.requested_time }}
+        <p><strong>Choose your preferred date and time:</strong></p>
+        <div id="calendar"></div>
 
-    <p id="captcha">
-      {{ form.captcha.label_tag }}<br>
-      {{ form.captcha }}
-    </p>
+        <p id="selected-slot">No time selected</p>
 
-    <button type="submit" id="submit-button" disabled>Submit Booking</button>
-  </form>
+        <p>
+            {{ form.captcha.label_tag }}<br>
+            {{ form.captcha }}
+            {% if form.captcha.errors %}
+                <span style="color: red;">{{ form.captcha.errors.0 }}</span>
+            {% endif %}
+        </p>
 
-  <!-- FullCalendar JS -->
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+        <button type="submit" id="submit-button" disabled>Submit Booking</button>
+    </form>
 
-  <!-- Custom calendar JS -->
-  <script src="{% static 'calendar.js' %}"></script>
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+    <!-- Custom calendar JS -->
+    <script src="{% static 'calendar.js' %}"></script>
 {% endblock %}
