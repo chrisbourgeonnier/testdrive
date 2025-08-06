@@ -110,6 +110,10 @@ body {
   text-decoration: none;
 }
 
+#captcha img {
+  width: 6rem;
+}
+
 
 /*FORM DISPLAY*/
 .form {
