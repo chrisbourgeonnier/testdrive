@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
+    <div class="thank-you-container">
   <h2>Thank You!</h2>
   <p>Your booking request has been submitted and is pending staff confirmation.</p>
   <a href="{% url 'vehicle_list' %}">Back to Vehicles</a>
+    </div>
 {% endblock %}

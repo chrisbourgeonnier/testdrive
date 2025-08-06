@@ -18,6 +18,20 @@ body {
   padding: 0 16px;
 }
 
+footer {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.thank-you-container {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
 /*VEHICLE_LIST DISPLAY*/
 .car-listings {
   display: grid;
