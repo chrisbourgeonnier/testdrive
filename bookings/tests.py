@@ -166,6 +166,7 @@ class FullCalendarTests(TestCase):
             msg="❌ Events endpoint should redirect unauthenticated users."
         )
 
+
     # -------------------------------------------------------------------------
     # PAGE LOADING & FRONTEND INTEGRATION TESTS
     # -------------------------------------------------------------------------
@@ -317,7 +318,6 @@ class FullCalendarTests(TestCase):
                 msg=f"❌ No event found for status '{status}'.")
             self.assertEqual(event['color'], expected_color,
                 msg=f"❌ Wrong color for {status} status. Expected {expected_color}, got {event['color']}.")
-
 
 # =============================================================================
 # TEST EXECUTION NOTES

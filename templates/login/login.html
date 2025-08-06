@@ -9,28 +9,33 @@
   <!-- User Login Section -->
   <section class="login-section user-login">
     <h2>User Log In</h2>
+        {% if form.errors %}
+          <div class="login-error" style="background:#ffdce0;color:#b50000;border:1px solid #e5a9aa;padding:10px 12px;margin-bottom:15px;border-radius:4px;">
+            {% for field in form %}
+              {% for error in field.errors %}
+                <div>{{ error }}</div>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
     <form method="post" action="{% url 'login' %}" class="login-form">
-      {% csrf_token %}
-{#      <label for="user-email">Email</label>#}
-{#      <input type="email" id="user-email" name="email" placeholder="Enter your email" required><br>#}
-{#        <label for="user-username">Username</label>#}
-{#        <input type="text" id="user-username" name="username" placeholder="Enter your username" required><br>#}
-{##}
-{##}
-{#      <label for="user-password">Password</label>#}
-{#      <input type="password" id="user-password" name="password" placeholder="Enter your password" required><br>#}
+        {% csrf_token %}
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required><br>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required><br>
 
-      <button type="submit" class="testdrive-btn">Log In</button>
+        <button type="submit" class="testdrive-btn">Log In</button>
     </form>
 
     <div class="login-links">
-      <a href="{% url 'register' %}" title="Create a new account">Create a new account</a> |
-      <a href="#" title="Forgot password">Forgot my password</a>
+        <a href="{% url 'register' %}" title="Create a new account">Create a new account</a> |
+        <a href="#" title="Forgot password">Forgot my password</a>
     </div>
   </section>
 
