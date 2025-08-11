@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 style="text-align:center;margin:16px 0;">My Dashboard</h2>
+
+  <section style="max-width:800px;margin:auto;">
+    <h3>Upcoming bookings</h3>
+    {% if upcoming %}
+      <ul style="list-style:none; padding:0;">
+        {% for b in upcoming %}
+          <li style="background:#fff;border:1px solid #ccc;border-radius:8px;padding:12px;margin-bottom:10px;">
+            <strong>{{ b.vehicle.year }} {{ b.vehicle.make }} {{ b.vehicle.model }}</strong><br>
+            {{ b.requested_date|date:"l, d M Y" }} — {{ b.requested_time|time:"H:i" }}<br>
+            Status: <strong>{{ b.get_status_display }}</strong>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No upcoming bookings.</p>
+    {% endif %}
+
+    <h3 style="margin-top:20px;">Booking history</h3>
+    {% if past %}
+      <ul style="list-style:none; padding:0;">
+        {% for b in past %}
+          <li style="background:#fff;border:1px solid #ccc;border-radius:8px;padding:12px;margin-bottom:10px;">
+            <strong>{{ b.vehicle.year }} {{ b.vehicle.make }} {{ b.vehicle.model }}</strong><br>
+            {{ b.requested_date|date:"l, d M Y" }} — {{ b.requested_time|time:"H:i" }}<br>
+            Status: <strong>{{ b.get_status_display }}</strong>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No bookings in history.</p>
+    {% endif %}
+  </section>
+{% endblock %}
