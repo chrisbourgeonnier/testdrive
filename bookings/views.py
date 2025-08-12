@@ -6,6 +6,7 @@ from .forms import BookingForm
 from django.urls import reverse_lazy
 from vehicles.models import Vehicle
 from .email_service import email_service
+from accounts.models import UserProfile
 import logging
 
 logger = logging.getLogger(__name__)
@@ -76,6 +77,11 @@ class CreateBookingView(CreateView):
 
         # Get the newly created booking instance
         booking = self.object
+
+        # Link booking to logged-in user
+        if self.request.user.is_authenticated and not booking.user_id:
+            booking.user = self.request.user
+            booking.save(update_fields=['user'])
 
         try:
             # Send confirmation email to customer

@@ -3,7 +3,10 @@ from django.urls import reverse_lazy
 from .forms import RegisterForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.views import LogoutView
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.utils import timezone
+from bookings.models import Booking
 
 class LoginPageView(LoginView):
     template_name = 'login/login.html'
@@ -23,3 +26,18 @@ class LogoutViewAllowGet(LogoutView):
         if request.method.lower() == 'get':
             return self.post(request, *args, **kwargs)
         return super().dispatch(request, *args, **kwargs)
+
+class UserDashboardView(LoginRequiredMixin, TemplateView): # New class
+    template_name = 'accounts/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        # Current user reservations
+        my_bookings = Booking.objects.filter(user=user).order_by('-requested_date', '-requested_time')
+
+        today = timezone.localdate()
+        ctx['upcoming'] = my_bookings.filter(requested_date__gte=today).order_by('requested_date', 'requested_time')
+        ctx['past'] = my_bookings.filter(requested_date__lt=today).order_by('-requested_date', '-requested_time')
+        return ctx
