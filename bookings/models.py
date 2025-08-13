@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from vehicles.models import Vehicle
 from django.utils import timezone
+from django.db.models import UniqueConstraint, Q
 from django.contrib.contenttypes.models import ContentType
 
 # Booking model relating to Vehicle, and supporting both guest and user bookings.
@@ -29,6 +30,26 @@ class Booking(models.Model):
     staff_notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            # A user cannot have two reservations on the same day and time.
+            UniqueConstraint(
+                fields=['user', 'requested_date', 'requested_time'],
+                name='uniq_user_date_time'
+            ),
+            # A vehicle cannot be booked twice in the same slot.
+            UniqueConstraint(
+                fields=['vehicle', 'requested_date', 'requested_time'],
+                name='uniq_vehicle_timeslot'
+            ),
+            # A guest with the same email address and same date/time cannot have two reservations on the same day and time.
+            UniqueConstraint(
+                fields=['guest_email', 'requested_date', 'requested_time'],
+                condition=Q(user__isnull=True) & ~Q(guest_email=''),
+                name='uniq_guest_email_date_time_if_no_user'
+            ),
+        ]
 
     def __str__(self):
         return f"{self.vehicle} - {self.requested_date} {self.requested_time} [{self.status}]"

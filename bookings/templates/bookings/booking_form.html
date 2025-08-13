@@ -12,11 +12,7 @@
                 <p><strong>{{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
                 <input type="hidden" name="vehicle" value="{{ selected_vehicle.id }}">
             {% endif %}
-            {% if form.non_field_errors %}
-                <div style="color: red; font-weight: bold;">
-                  {{ form.non_field_errors }}
-                </div>
-            {% endif %}
+
             <p>
                 {{ form.guest_name.label_tag }}
                 {{ form.guest_name }}

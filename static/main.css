@@ -223,3 +223,19 @@ footer {
     gap: 1.5rem; /* adjust gap when stacked */
   }
 }
+/* Flash messages */
+.flash-messages {
+  max-width: 600px;
+  margin: 16px auto 0;
+}
+.alert {
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 1px solid transparent;
+  font-weight: 600;
+}
+.alert.alert-success { background:#ecfdf5; color:#065f46; border-color:#10b981; }
+.alert.alert-info, .alert.alert-debug { background:#eff6ff; color:#1e3a8a; border-color:#3b82f6; }
+.alert.alert-warning { background:#fff7ed; color:#7c2d12; border-color:#f59e0b; }
+.alert.alert-error { background:#fef2f2; color:#991b1b; border-color:#ef4444; }

@@ -67,7 +67,17 @@
     </header>
 
     <main class="container">
-        {% block content %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }}" role="alert" aria-live="polite">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}
         <!-- Page-specific content will be injected here -->
         {% endblock %}
     </main>

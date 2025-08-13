@@ -8,6 +8,8 @@ from vehicles.models import Vehicle
 from .email_service import email_service
 from accounts.models import UserProfile
 import logging
+from django.db import IntegrityError
+from django.contrib import messages
 
 logger = logging.getLogger(__name__)
 
@@ -72,16 +74,56 @@ class CreateBookingView(CreateView):
         This method is called when the booking form is successfully submitted.
         We save the booking first, then send confirmation emails.
         """
-        # Save the booking first
-        response = super().form_valid(form)
+
+        # ---- PRECHECKS
+        user = self.request.user if self.request.user.is_authenticated else None
+        d = form.cleaned_data.get('requested_date')
+        t = form.cleaned_data.get('requested_time')
+        vehicle = form.cleaned_data.get('vehicle')
+
+        # Blocks the same user from having two reservations on the same date and time (regardless of the car).
+        if user and d and t and Booking.objects.filter(
+                user=user, requested_date=d, requested_time=t
+        ).exists():
+
+            messages.error(self.request, "You already have a booking at that date and time.")
+            return self.form_invalid(form)
+
+        # Block the same guest from having two reservations on the same date and time
+        guest_email = form.cleaned_data.get('guest_email')
+        if not user and guest_email and d and t and Booking.objects.filter(
+                user__isnull=True, guest_email=guest_email, requested_date=d, requested_time=t
+        ).exists():
+
+            messages.error(self.request, "You already have a booking at that date and time.")
+            return self.form_invalid(form)
+
+        # Blocks the same car from being reserved on the same date and time by any user.
+        if vehicle and d and t and Booking.objects.filter(
+                vehicle=vehicle, requested_date=d, requested_time=t
+        ).exists():
+
+            messages.error(self.request, "This vehicle is already booked for that time.")
+            return self.form_invalid(form)
+
+        # Assign the user BEFORE saving (if applicable)
+        if user and not form.instance.user_id:
+            form.instance.user = user
+
+        # We'll keep your reservation. If someone else takes the same shift at the same time, we'll let you know and request a different time.
+        try:
+            # Save the booking first
+            response = super().form_valid(form)
+        except IntegrityError:
+            # We check that the time slot is available, but if someone else has booked it right away, we'll let them know and request a different time slot.
+
+            messages.error(self.request, "Sorry, that time just got taken. Please pick another slot.")
+            return self.form_invalid(form)
+
+        messages.success(self.request, "Booking received. We'll confirm by email shortly.")
 
         # Get the newly created booking instance
         booking = self.object
-
-        # Link booking to logged-in user
-        if self.request.user.is_authenticated and not booking.user_id:
-            booking.user = self.request.user
-            booking.save(update_fields=['user'])
 
         try:
             # Send confirmation email to customer
@@ -109,9 +151,14 @@ class CreateBookingView(CreateView):
         return response
 
     def form_invalid(self, form):
-        print("❌ FORM INVALID ERRORS:", form.errors)
+        # Manda cualquier error no-campal a los flash messages
+        for err in form.non_field_errors():
+            # Mensaje más amable si es el de unicidad
+            txt = str(err)
+            if 'Booking with this Vehicle' in txt and 'Requested time' in txt:
+                txt = "This vehicle is already booked for that date and time."
+            messages.error(self.request, txt)
         return super().form_invalid(form)
-        return False
 
 class BookingThanksView(TemplateView):
     template_name = 'bookings/booking_thanks.html'
