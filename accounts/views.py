@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.utils import timezone
 from bookings.models import Booking
+from django.db.models import Q
 
 class LoginPageView(LoginView):
     template_name = 'login/login.html'
@@ -38,6 +39,11 @@ class UserDashboardView(LoginRequiredMixin, TemplateView): # New class
         my_bookings = Booking.objects.filter(user=user).order_by('-requested_date', '-requested_time')
 
         today = timezone.localdate()
-        ctx['upcoming'] = my_bookings.filter(requested_date__gte=today).order_by('requested_date', 'requested_time')
-        ctx['past'] = my_bookings.filter(requested_date__lt=today).order_by('-requested_date', '-requested_time')
+        ctx['upcoming'] = my_bookings.filter(
+            requested_date__gte=today
+        ).exclude(status='canceled').order_by('requested_date', 'requested_time')
+
+        ctx['past'] = my_bookings.filter(
+            Q(requested_date__lt=today) | Q(status='canceled')
+        ).order_by('-requested_date', '-requested_time')
         return ctx
