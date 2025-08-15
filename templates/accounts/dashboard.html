@@ -7,11 +7,25 @@
     {% if upcoming %}
       <ul style="list-style:none; padding:0;">
         {% for b in upcoming %}
-          <li style="background:#fff;border:1px solid #ccc;border-radius:8px;padding:12px;margin-bottom:10px;">
-            <strong>{{ b.vehicle.year }} {{ b.vehicle.make }} {{ b.vehicle.model }}</strong><br>
-            {{ b.requested_date|date:"l, d M Y" }} — {{ b.requested_time|time:"H:i" }}<br>
-            Status: <strong>{{ b.get_status_display }}</strong>
-          </li>
+             <li style="background:#fff;border:1px solid #ccc;border-radius:8px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;gap:12px;align-items:center;">
+                <div>
+                    <strong>{{ b.vehicle.year }} {{ b.vehicle.make }} {{ b.vehicle.model }}</strong><br>
+                    {{ b.requested_date|date:"l, d M Y" }} — {{ b.requested_time|time:"H:i" }}<br>
+                    Status: <strong>{{ b.get_status_display }}</strong>
+                </div>
+
+                <div style="display:flex; gap:8px;">
+                    <a href="{% url 'booking_reschedule' b.pk %}" class="booking-button reschedule-button">Reschedule</a>
+
+                    <form method="post" action="{% url 'booking_cancel' b.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="booking-button cancel-button"
+                            onclick="return confirm('Are you sure you want to cancel this booking?');">
+                        Cancel booking
+                        </button>
+                    </form>
+                </div>
+             </li>
         {% endfor %}
       </ul>
     {% else %}

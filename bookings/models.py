@@ -34,20 +34,22 @@ class Booking(models.Model):
     class Meta:
         constraints = [
             # A user cannot have two reservations on the same day and time.
-            UniqueConstraint(
+            models.UniqueConstraint(
                 fields=['user', 'requested_date', 'requested_time'],
-                name='uniq_user_date_time'
+                condition=~Q(status='canceled'),
+                name='uniq_user_timeslot_active',
             ),
             # A vehicle cannot be booked twice in the same slot.
-            UniqueConstraint(
-                fields=['vehicle', 'requested_date', 'requested_time'],
-                name='uniq_vehicle_timeslot'
+            models.UniqueConstraint(
+                fields=['guest_name', 'guest_email', 'requested_date', 'requested_time'],
+                condition=~Q(status='canceled'),
+                name='uniq_guest_timeslot_active',
             ),
             # A guest with the same email address and same date/time cannot have two reservations on the same day and time.
-            UniqueConstraint(
-                fields=['guest_email', 'requested_date', 'requested_time'],
-                condition=Q(user__isnull=True) & ~Q(guest_email=''),
-                name='uniq_guest_email_date_time_if_no_user'
+            models.UniqueConstraint(
+                fields=['vehicle', 'requested_date', 'requested_time'],
+                condition=~Q(status='canceled'),
+                name='uniq_vehicle_timeslot_active',
             ),
         ]
 

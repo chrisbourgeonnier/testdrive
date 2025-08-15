@@ -10,6 +10,11 @@ from accounts.models import UserProfile
 import logging
 from django.db import IntegrityError
 from django.contrib import messages
+from django.views import View
+from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic.edit import UpdateView
 
 logger = logging.getLogger(__name__)
 
@@ -81,28 +86,25 @@ class CreateBookingView(CreateView):
         t = form.cleaned_data.get('requested_time')
         vehicle = form.cleaned_data.get('vehicle')
 
-        # Blocks the same user from having two reservations on the same date and time (regardless of the car).
-        if user and d and t and Booking.objects.filter(
-                user=user, requested_date=d, requested_time=t
-        ).exists():
+        qs = Booking.objects.exclude(status='canceled')
 
+        # Blocks the same user from having two reservations on the same date and time (regardless of the car).
+        if user and d and t and qs.filter(user=user, requested_date=d, requested_time=t).exists():
             messages.error(self.request, "You already have a booking at that date and time.")
             return self.form_invalid(form)
 
         # Block the same guest from having two reservations on the same date and time
+        guest_name = form.cleaned_data.get('guest_name')
         guest_email = form.cleaned_data.get('guest_email')
-        if not user and guest_email and d and t and Booking.objects.filter(
-                user__isnull=True, guest_email=guest_email, requested_date=d, requested_time=t
+        if guest_name and guest_email and d and t and qs.filter(
+                guest_name=guest_name, guest_email=guest_email,
+                requested_date=d, requested_time=t
         ).exists():
-
             messages.error(self.request, "You already have a booking at that date and time.")
             return self.form_invalid(form)
 
         # Blocks the same car from being reserved on the same date and time by any user.
-        if vehicle and d and t and Booking.objects.filter(
-                vehicle=vehicle, requested_date=d, requested_time=t
-        ).exists():
-
+        if vehicle and d and t and qs.filter(vehicle=vehicle, requested_date=d, requested_time=t).exists():
             messages.error(self.request, "This vehicle is already booked for that time.")
             return self.form_invalid(form)
 
@@ -167,3 +169,79 @@ class BookingListView(ListView):
     model = Booking
     template_name = 'bookings/booking_list.html'
     context_object_name = 'bookings'
+
+class CancelBookingView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        booking = get_object_or_404(Booking, pk=pk, user=request.user)
+        today = timezone.localdate()
+
+        # Only allow cancellation of future or same-day cancellations not yet completed
+        if booking.status in ('canceled', 'completed'):
+            messages.error(request, "This booking can't be canceled.")
+            return redirect('user_dashboard')
+
+        # Mark as canceled (this 'releases' the spot)
+        booking.status = 'canceled'
+        booking.save()
+
+        # Email notification
+        try:
+            email_service.send_booking_status_update(booking)
+        except Exception:
+            pass
+
+        messages.success(request, "Your booking was canceled.")
+        return redirect('user_dashboard')
+
+class RescheduleBookingView(LoginRequiredMixin, UpdateView):
+    model = Booking
+    form_class = BookingForm
+    template_name = 'bookings/booking_form.html'
+    success_url = reverse_lazy('user_dashboard')
+
+    def get_queryset(self):
+        # Make sure you can only touch your own stash
+        return Booking.objects.filter(user=self.request.user)
+
+    def form_valid(self, form):
+        user = self.request.user
+        d = form.cleaned_data.get('requested_date')
+        t = form.cleaned_data.get('requested_time')
+        vehicle = form.cleaned_data.get('vehicle')
+
+        # Anti-collision rules (same logic as you create, but ignoring cancels and the pk itself)
+        qs = Booking.objects.exclude(status='canceled').exclude(pk=self.object.pk)
+
+        # Blocks the same user from having two reservations on the same date and time (regardless of the car).
+        if user and d and t and qs.filter(user=user, requested_date=d, requested_time=t).exists():
+            messages.error(self.request, "You already have a booking at that date and time.")
+            return self.form_invalid(form)
+
+        # Block the same guest from having two reservations on the same date and time
+        guest_name = form.cleaned_data.get('guest_name')
+        guest_email = form.cleaned_data.get('guest_email')
+        if guest_name and guest_email and d and t and qs.filter(
+            guest_name=guest_name, guest_email=guest_email,
+            requested_date=d, requested_time=t
+        ).exists():
+            messages.error(self.request, "You already have a booking at that date and time.")
+            return self.form_invalid(form)
+
+        # Blocks the same car from being reserved on the same date and time by any user.
+        if vehicle and d and t and qs.filter(
+            vehicle=vehicle, requested_date=d, requested_time=t
+        ).exists():
+            messages.error(self.request, "This vehicle is already booked for that time.")
+            return self.form_invalid(form)
+
+        # Mark as rescheduled
+        form.instance.status = 'rescheduled'
+        response = super().form_valid(form)
+
+        try:
+            email_service.send_booking_status_update(self.object)
+        except Exception:
+            pass
+
+        messages.success(self.request, "Your booking was rescheduled.")
+        return response

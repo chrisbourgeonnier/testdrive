@@ -239,3 +239,40 @@ footer {
 .alert.alert-info, .alert.alert-debug { background:#eff6ff; color:#1e3a8a; border-color:#3b82f6; }
 .alert.alert-warning { background:#fff7ed; color:#7c2d12; border-color:#f59e0b; }
 .alert.alert-error { background:#fef2f2; color:#991b1b; border-color:#ef4444; }
+
+/* Base */
+a.booking-button,
+a.booking-button:link,
+a.booking-button:visited,
+button.booking-button {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+
+/* Cancel booking*/
+.cancel-button {
+  color: #fff !important;
+  background-color: #b30000;
+  border: 2px solid #b30000;
+}
+.cancel-button:hover {
+  background-color: #990000;
+  border-color: #990000;
+}
+
+/* Reschedule booking */
+.reschedule-button {
+  color: #b30000 !important;
+  background-color: #fff;
+  border: 2px solid #b30000;
+}
+.reschedule-button:hover {
+  background-color: #b30000;
+  color: #fff !important;
+}
