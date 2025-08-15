@@ -22,7 +22,7 @@
         {% endif %}
 
         <div class="booking-form">
-            {% with veh=object.vehicle|default:form.instance.vehicle %}
+            {% with veh=selected_vehicle|default:form.instance.vehicle %}
                 {% if veh %}
                     <p><strong>Vehicle:</strong></p>
                     <p><strong>{{ veh.year }} {{ veh.make }} {{ veh.model }}</strong></p>

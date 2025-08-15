@@ -24,18 +24,21 @@ class BookingForm(forms.ModelForm):
         vehicle = kwargs.pop('vehicle', None)
         super().__init__(*args, **kwargs)
 
-        if vehicle:
-            # Pre-fill and hide the vehicle field if provided
-            self.fields['vehicle'].initial = vehicle
-            self.fields['vehicle'].widget = forms.HiddenInput()
+        if vehicle and not self.initial.get('vehicle') and not self.instance.pk:
+            self.initial['vehicle'] = vehicle.pk
 
-        # Hide booking date and time; selected via FullCalendar on the frontend
+        """ Hide booking date and time; selected via FullCalendar on the frontend
         self.fields['requested_date'].widget = forms.HiddenInput()
-        self.fields['requested_time'].widget = forms.HiddenInput()
+        self.fields['requested_time'].widget = forms.HiddenInput()"""
 
     # -------------------------------
     # Custom Field Validations
     # -------------------------------
+    def clean_vehicle(self):
+
+        if self.instance and self.instance.pk:
+            return self.instance.vehicle
+        return self.cleaned_data['vehicle']
 
     def clean_guest_name(self):
         """
@@ -89,7 +92,7 @@ class BookingForm(forms.ModelForm):
             'requested_date', 'requested_time', 'captcha'
         ]
         widgets = {
-            'vehicle': forms.HiddenInput(),  # ← clave para reschedule
+            'vehicle': forms.HiddenInput(),
             'requested_date': forms.HiddenInput(),
             'requested_time': forms.HiddenInput(),
         }

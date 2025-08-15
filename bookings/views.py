@@ -234,8 +234,8 @@ class RescheduleBookingView(LoginRequiredMixin, UpdateView):
             messages.error(self.request, "This vehicle is already booked for that time.")
             return self.form_invalid(form)
 
-        # Mark as confirmed (or pending if you prefer)
-        form.instance.status = 'confirmed'
+        # Mark as rescheduled
+        form.instance.status = 'rescheduled'
         response = super().form_valid(form)
 
         try:
