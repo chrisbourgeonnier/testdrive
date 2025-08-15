@@ -8,46 +8,45 @@
 
     <form class="form" method="post" id="booking-form" action="">
         {% csrf_token %}
-        {% if form.non_field_errors %}
-            <div class="alert alert-error"> {{ form.non_field_errors }} </div>
+       {% if form.errors or form.non_field_errors %}
+            <div class="alert alert-error" style="max-width:600px;margin:10px auto;">
+                {% for field, errors in form.errors.items %}
+                    {% for e in errors %}
+                        <div>{{ e }}</div>
+                    {% endfor %}
+                {% endfor %}
+                {% for e in form.non_field_errors %}
+                        <div>{{ e }}</div>
+                {% endfor %}
+            </div>
         {% endif %}
 
         <div class="booking-form">
-            {% if selected_vehicle %}
-                <p><strong>Vehicle: </strong></p>
-                <p><strong>{{ selected_vehicle.year }} {{ selected_vehicle.make }} {{ selected_vehicle.model }}</strong></p>
-                <input type="hidden" name="vehicle" value="{{ selected_vehicle.id }}">
-            {% endif %}
+            {% with veh=object.vehicle|default:form.instance.vehicle %}
+                {% if veh %}
+                    <p><strong>Vehicle:</strong></p>
+                    <p><strong>{{ veh.year }} {{ veh.make }} {{ veh.model }}</strong></p>
+                {% endif %}
+            {% endwith %}
+            {{ form.vehicle }}  {# ← hidden input from the form (used in create/update) #}
 
             <p>
                 {{ form.guest_name.label_tag }}
                 {{ form.guest_name }}
-                {% if form.guest_name.errors %}
-                    <span style="color: red;">{{ form.guest_name.errors.0 }}</span>
-                {% endif %}
             </p>
             <p>
                 {{ form.guest_email.label_tag }}
                 {{ form.guest_email }}
-                {% if form.guest_email.errors %}
-                    <span style="color: red;">{{ form.guest_email.errors.0 }}</span>
-                {% endif %}
            </p>
 
             <p>
                 {{ form.guest_phone.label_tag }}
                 {{ form.guest_phone }}
-                {% if form.guest_phone.errors %}
-                    <span style="color: red;">{{ form.guest_phone.errors.0 }}</span>
-                {% endif %}
             </p>
 
             <p>
                 {{ form.dob.label_tag }}
                 {{ form.dob }}
-                {% if form.dob.errors %}
-                    <span style="color: red;">{{ form.dob.errors.0 }}</span>
-                {% endif %}
             </p>
         </div>
 
@@ -55,12 +54,6 @@
             {{ form.requested_date }}
             {{ form.requested_time }}
 
-         {% if form.requested_date.errors or form.requested_time.errors %}
-            <div class="alert alert-error" style="max-width:600px;margin:10px auto;">
-                {% for e in form.requested_date.errors %}<div>{{ e }}</div>{% endfor %}
-                {% for e in form.requested_time.errors %}<div>{{ e }}</div>{% endfor %}
-            </div>
-         {% endif %}
 
         <div class="wide-text">
             <p><strong>Choose your preferred date and time:</strong></p>
@@ -74,9 +67,6 @@
             <p>
                 {{ form.captcha.label_tag }} <br>
                 {{ form.captcha }}
-                {% if form.captcha.errors %}
-                    <span style="color: red;">{{ form.captcha.errors.0 }}</span>
-                {% endif %}
             </p>
             <button type="submit" id="submit-button" {% if not object %}disabled{% endif %}>
                 {% if object %}Save changes{% else %}Submit Booking{% endif %}

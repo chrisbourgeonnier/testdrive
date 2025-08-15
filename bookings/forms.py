@@ -88,6 +88,11 @@ class BookingForm(forms.ModelForm):
             'vehicle', 'guest_name', 'guest_email', 'guest_phone', 'dob',
             'requested_date', 'requested_time', 'captcha'
         ]
+        widgets = {
+            'vehicle': forms.HiddenInput(),  # ← clave para reschedule
+            'requested_date': forms.HiddenInput(),
+            'requested_time': forms.HiddenInput(),
+        }
         labels = {
             'guest_name': 'Name',
             'guest_email': 'Email',
