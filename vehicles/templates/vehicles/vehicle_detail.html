@@ -4,7 +4,11 @@
         <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
         <div class="vehicle-details">
             <div>
-                <img src="{{ vehicle.photo_link }}" class="vehicle-photo" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                {% if vehicle.photo_link|slice:":8" == "https://" %}
+                    <img src="{% url 'image_proxy' %}?url={{ vehicle.photo_link|urlencode }}" class="vehicle-photo" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                {% else %}
+                    <img src="{{ vehicle.photo_link }}" class="vehicle-photo" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                {% endif %}
             </div>
             <div>
                 <p><strong>Year:</strong> {{ vehicle.year }} </p>

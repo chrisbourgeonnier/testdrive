@@ -32,5 +32,10 @@ urlpatterns = [
 
 ]
 
-if settings.DEBUG:  # Needed for serving media during development
+# IMPORTANT: This serves media files during development
+if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# ALSO ensure static files are served during development (this should already exist)
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])

@@ -7,11 +7,11 @@
                 <div class="car-card" >
                     <a href="{% url 'vehicle_detail' vehicle.pk %}">
                         <div class="car-img">
-                          <img
-                            src="{{ vehicle.photo_link }}"
-                            alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}"
-                            loading="lazy"
-                          >
+                            {% if vehicle.photo_link|slice:":8" == "https://" %}
+                                <img src="{% url 'image_proxy' %}?url={{ vehicle.photo_link|urlencode }}" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                            {% else %}
+                                <img src="{{ vehicle.photo_link }}" alt="{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}" />
+                            {% endif %}
                         </div>
                         <div class="car-details">
                           <h2>{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>

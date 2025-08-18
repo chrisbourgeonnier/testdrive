@@ -1,139 +1,340 @@
+# COMPLETE NEW FILE: vehicles/management/commands/import_vehicles.py
+# Uses WordPress JSON API with local image downloading
+
 from django.core.management.base import BaseCommand
 from vehicles.models import Vehicle
-from bs4 import BeautifulSoup, Tag
 import requests
 import re
+import os
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+import uuid
+from urllib.parse import urlparse
+import time
+from bs4 import BeautifulSoup
+
+
+# ─── helpers ──────────────────────────────────────────────────
+def get_text(field, fallback=''):
+    """
+    Accept WordPress field that is either a dict {'rendered': '…'}
+    or already a string, and always return plain text.
+    """
+    if isinstance(field, dict):
+        return field.get('rendered', fallback)
+    return str(field) if field else fallback
+
+
+def get_list(field):
+    """Return a list even if field is None or scalar."""
+    return field if isinstance(field, (list, tuple)) else []
+
+
+# ───────────────────────────────────────────────────────────────
 
 class Command(BaseCommand):
-    help = 'Import all vehicles and their details from Richmonds'
+    help = 'Import vehicles from Richmonds JSON API with local image storage'
 
     def handle(self, *args, **options):
-        main_url = 'https://richmonds.com.au/cars-for-sale/'
-        self.stdout.write("Fetching cars list...")
-        resp = requests.get(main_url)
-        if resp.status_code != 200:
-            self.stderr.write(f"Failed list: {resp.status_code}")
+        # Use the JSON API endpoint you discovered
+        api_url = 'https://richmonds.com.au/wp-json/wp/v2/portfolio?type=vehicle&per_page=100'
+
+        self.stdout.write("Fetching vehicles from JSON API...")
+
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json',
+            'Accept-Language': 'en-US,en;q=0.9',
+        }
+
+        try:
+            response = requests.get(api_url, headers=headers, timeout=30)
+            response.raise_for_status()
+            vehicles_data = response.json()
+
+            self.stdout.write(f"Found {len(vehicles_data)} vehicles in API")
+
+            for vehicle_data in vehicles_data:
+                self.process_vehicle(vehicle_data)
+                # Small delay to be respectful
+                time.sleep(0.5)
+
+        except requests.RequestException as e:
+            self.stderr.write(f"Failed to fetch API data: {e}")
+            return
+        except Exception as e:
+            self.stderr.write(f"Error processing API data: {e}")
             return
 
-        # Find each car on the main listing page
-        soup = BeautifulSoup(resp.content, 'html.parser')
-        portfolio_items = soup.select('div.portfolio_item')
-        self.stdout.write(f"Found {len(portfolio_items)} cars")
+        self.stdout.write(self.style.SUCCESS("All vehicles imported with local images!"))
 
-        for item in portfolio_items:
-            link_a = item.select_one('.imghoverclass a')
-            if not link_a:
-                continue
+    def process_vehicle(self, api_data):
+        """
+        Process a single vehicle from the JSON API data.
 
-            car_link = link_a['href']
-            title = link_a.get('title') or link_a.text.strip()
-            # Note: car_link should be unique in DB
-            img_tag = link_a.find('img')
-            photo_link = img_tag['data-src'] if img_tag and 'data-src' in img_tag.attrs else ""
+        Args:
+            api_data: Dictionary containing vehicle data from WordPress API
+        """
+        try:
+            # Extract basic info from API response
+            title = get_text(api_data.get('title'))
+            vehicle_link = str(api_data.get('link', ''))
 
-            # Attempt to parse "year" from the title (e.g. "2010 BMW E89 Z4 sDrive 35is Roadster (MY11) – DCT")
+            # Parse year from title (e.g. "2021 Mercedes Benz X167 GLS 400d...")
             year_match = re.match(r'^(\d{4})\s+', title)
-            year = int(year_match.group(1)) if year_match else None
+            year = int(year_match.group(1)) if year_match else 0
 
-            # Now fetch the car detail page
-            car_resp = requests.get(car_link)
-            if car_resp.status_code != 200:
-                self.stderr.write(f"Failed to load car {car_link}: {car_resp.status_code}")
-                continue
+            # Get featured image from API response
+            featured_media_id = api_data.get('featured_media', 0)
+            image_url = self.get_featured_image_url(featured_media_id)
 
-            car_soup = BeautifulSoup(car_resp.content, 'html.parser')
-            postclass_div = car_soup.select_one('div.postclass')
+            # Check if this is a "for sale" vehicle (not "under offer" or "sold")
+            portfolio_types = get_list(api_data.get('portfolio-type'))
+            # From the JSON, 18 = "cars-for-sale", 20 = "under-offer"
+            is_for_sale = 18 in portfolio_types
+
+            if not is_for_sale:
+                self.stdout.write(f"Skipping {title} - not for sale")
+                return
+
+            # Now we need to scrape the individual vehicle page for detailed specs
+            vehicle_details = self.scrape_vehicle_details(vehicle_link)
+
+            if not vehicle_details:
+                self.stdout.write(f"Could not get details for {title}")
+                return
+
+            # Download and store image locally
+            local_image_url = None
+            if image_url:
+                local_image_url = self.download_image(image_url, {
+                    'make': vehicle_details.get('make', 'unknown'),
+                    'model': vehicle_details.get('model', 'unknown'),
+                    'year': year
+                })
+
+            # Prepare final vehicle data
+            vehicle_data = {
+                'make': vehicle_details.get('make', ''),
+                'model': vehicle_details.get('model', ''),
+                'year': year,
+                'km': vehicle_details.get('km', 0),
+                'engine_size': vehicle_details.get('engine_size', 0),
+                'transmission': vehicle_details.get('transmission', ''),
+                'price': vehicle_details.get('price', 0),
+                'photo_link': local_image_url or image_url or '',  # Use local first, fallback to original
+                'link': vehicle_link,
+                'description': vehicle_details.get('description', ''),
+                'is_active': True,
+            }
+
+            # Update or create the Vehicle
+            vehicle, created = Vehicle.objects.update_or_create(
+                link=vehicle_link,
+                defaults=vehicle_data
+            )
+
+            action = 'Created' if created else 'Updated'
+            image_status = '(with local image)' if local_image_url else '(original image URL)'
+            self.stdout.write(f"{action}: {year} {vehicle_data['make']} {vehicle_data['model']} {image_status}")
+
+        except Exception as e:
+            self.stderr.write(f"Error processing vehicle {api_data.get('title', {}).get('rendered', 'unknown')}: {e}")
+
+    def get_featured_image_url(self, media_id):
+        """
+        Get the featured image URL from WordPress media API.
+
+        Args:
+            media_id: WordPress media ID
+
+        Returns:
+            str: Image URL or None if not found
+        """
+        if not media_id:
+            return None
+
+        try:
+            media_api_url = f'https://richmonds.com.au/wp-json/wp/v2/media/{media_id}'
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'application/json',
+            }
+
+            response = requests.get(media_api_url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                media_data = response.json()
+                return media_data.get('source_url', '')
+
+        except Exception as e:
+            self.stderr.write(f"Failed to get image for media ID {media_id}: {e}")
+
+        return None
+
+    def scrape_vehicle_details(self, vehicle_url):
+        """
+        Scrape detailed vehicle specifications from individual vehicle page.
+
+        Args:
+            vehicle_url: URL to individual vehicle page
+
+        Returns:
+            dict: Vehicle details including make, model, km, price, etc.
+        """
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Accept-Encoding': 'gzip, deflate',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            }
+
+            response = requests.get(vehicle_url, headers=headers, timeout=30)
+            if response.status_code != 200:
+                return None
+
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Look for the vehicle details table (same as before)
+            postclass_div = soup.select_one('div.postclass')
             if not postclass_div:
-                self.stderr.write(f"No vehicle details found at {car_link}")
-                continue
-
-            if postclass_div:
-                # Find the first <a> tag inside the postclass div
-                a_tag = postclass_div.find('a')
-                if a_tag and 'href' in a_tag.attrs:
-                    photo_link = a_tag['href']
-
+                return None
 
             table = postclass_div.find('table')
             if not table:
-                self.stderr.write(f"No detail table found at {car_link}")
-                continue
+                return None
 
-            # Default fields
-            detail_data = {
+            # Default values
+            details = {
                 'make': '',
                 'model': '',
-                'year': year,
                 'km': 0,
                 'engine_size': 0,
                 'transmission': '',
                 'price': 0,
-                'photo_link': photo_link,
-                'link': car_link,
                 'description': '',
-                'is_active': True,
             }
 
+            # Parse table rows for vehicle specs
             for tr in table.find_all('tr'):
                 tds = tr.find_all('td')
                 if len(tds) != 2:
                     continue
+
                 label = tds[0].get_text(strip=True).replace(':', '').lower()
                 value = tds[1].get_text(strip=True)
 
                 if label == 'make':
-                    detail_data['make'] = value
+                    details['make'] = value
                 elif label == 'model':
-                    detail_data['model'] = value
-                elif label == 'built' and year is None:
+                    details['model'] = value
+                elif label == 'built':
                     try:
-                        detail_data['year'] = int(value)
+                        details['year'] = int(value)
                     except ValueError:
-                        detail_data['year'] = 0
+                        pass
                 elif label == 'km':
                     try:
-                        detail_data['km'] = int(value.replace(',', '').replace('km', '').strip())
+                        details['km'] = int(value.replace(',', '').replace('km', '').strip())
                     except ValueError:
-                        detail_data['km'] = 0
+                        details['km'] = 0
                 elif label == 'engine size':
-                    # Example: '3000cc'
                     try:
-                        detail_data['engine_size'] = int(re.sub(r'[^\d]', '', value))
+                        details['engine_size'] = int(re.sub(r'[^\d]', '', value))
                     except ValueError:
-                        detail_data['engine_size'] = 0
+                        details['engine_size'] = 0
                 elif label == 'transmission':
-                    detail_data['transmission'] = value
+                    details['transmission'] = value
                 elif label == 'price':
-                    # Example: '$41,900'
-                    detail_data['price'] = int(re.sub(r'[^\d]', '', value))
+                    try:
+                        details['price'] = int(re.sub(r'[^\d]', '', value))
+                    except ValueError:
+                        details['price'] = 0
 
-            # Parse 5 paragraphs of description
-            # Find the two <hr> tags inside postclass_div
+            # Extract description (between HR tags as before)
             hrs = postclass_div.find_all('hr')
-            if len(hrs) < 2:
-                description = ""  # Not enough <hr> tags found
-            else:
+            if len(hrs) >= 2:
                 start_hr, end_hr = hrs[0], hrs[1]
-
-                count = 0
                 paragraphs = []
                 current = start_hr.next_sibling
+                count = 0
 
                 while current and current != end_hr and count < 3:
-                    if isinstance(current, Tag) and current.name == 'p':
-                        paragraphs.append(current.get_text(strip=True))
-                        count += 1
+                    if hasattr(current, 'name') and current.name == 'p':
+                        text = current.get_text(strip=True)
+                        if text:
+                            paragraphs.append(text)
+                            count += 1
                     current = current.next_sibling
 
-                # Join the first 5 paragraph texts into a single string (with newlines or spaces)
-                description = "\n\n".join(paragraphs)
-                detail_data['description'] = description
+                details['description'] = "\n\n".join(paragraphs)
 
-            # Update or create the Vehicle
-            vehicle, created = Vehicle.objects.update_or_create(
-                link=car_link,
-                defaults=detail_data
-            )
-            self.stdout.write(f"{'Created' if created else 'Updated'}: {detail_data['year']} {detail_data['make']} {detail_data['model']}")
+            return details
 
-        self.stdout.write(self.style.SUCCESS("All vehicles imported!"))
+        except Exception as e:
+            self.stderr.write(f"Error scraping {vehicle_url}: {e}")
+            return None
+
+    def download_image(self, image_url, vehicle_info):
+        """
+        Download image from external URL and store locally in media folder.
+
+        Args:
+            image_url: URL of the image to download
+            vehicle_info: Dict containing vehicle info for filename
+
+        Returns:
+            str: Local URL path to the downloaded image, or None if failed
+        """
+        if not image_url:
+            return None
+
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Referer': 'https://richmonds.com.au/',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+            }
+
+            response = requests.get(image_url, headers=headers, timeout=30)
+            if response.status_code != 200:
+                self.stderr.write(f"Failed to download image: {image_url} - Status: {response.status_code}")
+                return None
+
+            # Get file extension from URL
+            parsed_url = urlparse(image_url)
+            file_extension = os.path.splitext(parsed_url.path)[1]
+            if not file_extension:
+                file_extension = '.jpg'
+
+            # Generate safe filename
+            safe_make = re.sub(r'[^\w\-_]', '', vehicle_info.get('make', 'unknown'))
+            safe_model = re.sub(r'[^\w\-_]', '', vehicle_info.get('model', 'unknown'))
+            year = vehicle_info.get('year', 'unknown')
+            unique_id = uuid.uuid4().hex[:8]
+
+            filename = f"vehicles/{year}_{safe_make}_{safe_model}_{unique_id}{file_extension}"
+
+            # Save to Django media storage
+            file_path = default_storage.save(filename, ContentFile(response.content))
+
+            # Return the full URL that can be used in templates
+            local_url = default_storage.url(file_path)
+
+            self.stdout.write(f"  ✓ Downloaded image: {filename}")
+            return local_url
+
+        except requests.RequestException as e:
+            self.stderr.write(f"Network error downloading image {image_url}: {str(e)}")
+            return None
+        except Exception as e:
+            self.stderr.write(f"Error downloading image {image_url}: {str(e)}")
+            return None
