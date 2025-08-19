@@ -1,8 +1,25 @@
 from django.db import models
 
-# Vehicle model to match car attributes
+
 class Vehicle(models.Model):
-    # vehicle_id = models.IntegerField(unique=True)  # Richmonds ID or imported ID
+    """
+    Represents a classic or prestige vehicle available for test drives.
+
+    Contains vehicle specifications, pricing, images, and links to detailed
+    information on the Richmonds website. Supports active/inactive states
+    for inventory management and automatic import from external sources.
+
+    Fields:
+    - make, model, year: Basic vehicle identification
+    - km, engine_size, transmission: Technical specifications
+    - price: Vehicle pricing in AUD
+    - photo_link: URL to primary vehicle image
+    - description: Marketing description from vehicle detail page
+    - link: URL to full vehicle details on Richmonds website
+    - is_active: Controls visibility in public vehicle listings
+
+    The link field serves as unique identifier for import operations.
+    """
     make = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.IntegerField()

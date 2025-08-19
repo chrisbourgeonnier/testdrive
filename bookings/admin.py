@@ -14,6 +14,13 @@ logger = logging.getLogger(__name__)
 # Register EmailLog model for admin viewing
 @admin.register(EmailLog)
 class EmailLogAdmin(admin.ModelAdmin):
+    """
+    Admin interface for viewing email delivery logs.
+
+    Provides read-only access to email audit trail for debugging
+    and monitoring email delivery success/failure rates. Email logs
+    are automatically created by the system and cannot be manually added.
+    """
     list_display = ['booking', 'email_type', 'recipient_email', 'sent_successfully', 'sent_at']
     list_filter = ['email_type', 'sent_successfully', 'sent_at']
     search_fields = ['recipient_email', 'subject', 'booking__id']
@@ -21,12 +28,33 @@ class EmailLogAdmin(admin.ModelAdmin):
                        'sent_successfully', 'error_message', 'sent_at']
 
     def has_add_permission(self, request):
-        # Email logs are created automatically, don't allow manual creation
+        """
+        Disable manual creation of email logs.
+
+        Email logs are automatically created by the email service
+        and should not be manually added through the admin interface.
+
+        Args:
+            request: HTTP request object
+
+        Returns:
+            bool: Always False to prevent manual log creation
+        """
         return False
 
-# Booking model with list filters and bulk actions
+
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
+    """
+    Enhanced admin interface for managing test drive bookings.
+
+    Features:
+    - Bulk status update actions with automatic email notifications
+    - FullCalendar integration for visual booking management
+    - Individual booking email notifications on status changes
+    - Search and filtering capabilities for easy booking management
+    - Custom calendar view accessible via "See Calendar" button
+    """
     list_display = ['id', 'vehicle', 'status', 'requested_date', 'requested_time', 'user', 'guest_name']
     list_display_links = ['id', 'vehicle']
     search_fields = ['vehicle__make', 'vehicle__model', 'guest_name', 'user__email']
@@ -35,7 +63,15 @@ class BookingAdmin(admin.ModelAdmin):
 
     def mark_confirmed(self, request, queryset):
         """
-        Bulk action to mark bookings as confirmed and send emails.
+        Bulk action to mark bookings as confirmed and send email notifications.
+
+        Updates selected bookings to 'confirmed' status and automatically
+        sends confirmation emails to customers. Displays success/failure
+        count to admin user.
+
+        Args:
+            request: HTTP request object
+            queryset: Selected booking objects
         """
         updated_count = 0
         email_success_count = 0
@@ -70,7 +106,13 @@ class BookingAdmin(admin.ModelAdmin):
     mark_confirmed.short_description = 'Mark selected bookings as Confirmed (with email)'
 
     def mark_completed(self, request, queryset):
-        """Mark bookings as completed (no email sent)."""
+        """
+        Bulk action to mark bookings as completed (no email sent).
+
+        Args:
+            request: HTTP request object
+            queryset: Selected booking objects
+        """
         updated_count = queryset.update(status='completed')
         self.message_user(request, f"Marked {updated_count} booking(s) as completed.")
 
@@ -78,7 +120,15 @@ class BookingAdmin(admin.ModelAdmin):
 
     def mark_canceled(self, request, queryset):
         """
-        Bulk action to mark bookings as canceled and send emails.
+        Bulk action to mark bookings as canceled and send email notifications.
+
+        Updates selected bookings to 'canceled' status and automatically
+        sends cancellation emails to customers. Displays success/failure
+        count to admin user.
+
+        Args:
+            request: HTTP request object
+            queryset: Selected booking objects
         """
         updated_count = 0
         email_success_count = 0
@@ -115,7 +165,15 @@ class BookingAdmin(admin.ModelAdmin):
         """
         Override save_model to send emails when individual booking status changes.
 
-        This is called when a staff member edits a booking individually.
+        This is called when a staff member edits a booking individually through
+        the admin interface. Automatically sends appropriate email notifications
+        when status changes to confirmed, rescheduled, or canceled.
+
+        Args:
+            request: HTTP request object
+            obj: Booking instance being saved
+            form: Model form instance
+            change: Boolean indicating if this is an update (True) or creation (False)
         """
         # Get the old status if this is an update
         old_status = None
@@ -148,6 +206,15 @@ class BookingAdmin(admin.ModelAdmin):
     change_list_template = "admin/bookings/booking/change_list.html"
 
     def get_urls(self):
+        """
+        Add custom URL patterns for FullCalendar functionality.
+
+        Extends default admin URLs with calendar view endpoints
+        for visual booking management.
+
+        Returns:
+            list: URL patterns including calendar views
+        """
         urls = super().get_urls()
         my_urls = [
             path('calendar/', self.admin_site.admin_view(self.booking_calendar_view), name='bookings_booking_calendar'),
@@ -158,7 +225,16 @@ class BookingAdmin(admin.ModelAdmin):
 
     def booking_calendar_view(self, request):
         """
-        Render the page with the FullCalendar to show bookings calendar in admin.
+        Render the FullCalendar page for visual booking management.
+
+        Displays all bookings in a calendar interface with color-coded
+        status indicators for easy visual management.
+
+        Args:
+            request: HTTP request object
+
+        Returns:
+            HttpResponse: Rendered calendar template
         """
         # Pass any extra context if needed
         context = {
@@ -171,7 +247,18 @@ class BookingAdmin(admin.ModelAdmin):
 
     def booking_calendar_events(self, request):
         """
-        JSON endpoint to provide all bookings as events for FullCalendar.
+        JSON API endpoint providing booking data for FullCalendar.
+
+        Returns all bookings formatted as calendar events with:
+        - Color coding by status (pending=orange, confirmed=green, etc.)
+        - Event titles including vehicle and customer information
+        - Proper date/time formatting for calendar display
+
+        Args:
+            request: HTTP request object
+
+        Returns:
+            JsonResponse: List of calendar events in FullCalendar format
         """
         status_color_map = {
             'pending': '#FFA500',  # orange
