@@ -70,6 +70,8 @@ Create a `.env` file in the project root with your local configuration:
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_email_password_or_app_key
 STAFF_NOTIFICATION_EMAIL=staff_notification@example.com
+ALLOWED_HOSTS=127.0.0.1,localhost
+SECRET_KEY=your_secret_key
 ```
 
 *(If deploying to AWS, move sensitive variables into your cloud environment configs.)*
