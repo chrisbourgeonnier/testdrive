@@ -19,12 +19,31 @@ from django.views.generic.edit import UpdateView
 logger = logging.getLogger(__name__)
 
 class CreateBookingView(CreateView):
+    """
+    Handles test drive booking creation for both guests and authenticated users.
+
+    Features:
+    - Pre-fills form data for logged-in users from their profile
+    - Validates booking conflicts (same user/vehicle/time combinations)
+    - Sends confirmation emails to customer and staff
+    - Integrates with FullCalendar for time slot selection
+    - Handles concurrent booking attempts gracefully
+    """
     model = Booking
     form_class = BookingForm
     template_name = 'bookings/booking_form.html'
     success_url = reverse_lazy('booking_thanks')
 
     def get_form_kwargs(self):
+        """
+        Customize form initialization with user data and selected vehicle.
+
+        For authenticated users, pre-fills form with user profile information.
+        For vehicle pre-selection, passes the vehicle from URL parameter.
+
+        Returns:
+            dict: Form kwargs with initial data and vehicle context
+        """
         kwargs = super().get_form_kwargs()
         vehicle_pk = self.request.GET.get('vehicle')
 
@@ -35,7 +54,6 @@ class CreateBookingView(CreateView):
             except Vehicle.DoesNotExist:
                 pass
 
-        # Add initial data for logged-in user to pre-fill booking form
         if self.request.user.is_authenticated:
             user = self.request.user
             initial = kwargs.get('initial', {}).copy()
@@ -44,7 +62,6 @@ class CreateBookingView(CreateView):
                 'guest_email': user.email,
             })
 
-            # Try to get phone and dob from profile
             try:
                 initial['guest_phone'] = user.profile.phone_number
             except (AttributeError, UserProfile.DoesNotExist):
@@ -60,6 +77,12 @@ class CreateBookingView(CreateView):
         return kwargs
 
     def get_context_data(self, **kwargs):
+        """
+        Add selected vehicle to template context for display.
+
+        Returns:
+            dict: Template context with selected vehicle information
+        """
         context = super().get_context_data(**kwargs)
         vehicle_pk = self.request.GET.get('vehicle')
         if vehicle_pk:
@@ -74,13 +97,22 @@ class CreateBookingView(CreateView):
 
     def form_valid(self, form):
         """
-        Override form_valid to send emails after booking is created.
+        Process valid booking submission with business rule validation.
 
-        This method is called when the booking form is successfully submitted.
-        We save the booking first, then send confirmation emails.
+        Validates:
+        - No double bookings for same user at same time
+        - No double bookings for same guest email at same time
+        - No vehicle conflicts at same time slot
+
+        On success, sends confirmation emails to customer and staff.
+        Handles database integrity errors gracefully.
+
+        Args:
+            form: Valid BookingForm instance
+
+        Returns:
+            HttpResponse: Success response or form error response
         """
-
-        # ---- PRECHECKS
         user = self.request.user if self.request.user.is_authenticated else None
         d = form.cleaned_data.get('requested_date')
         t = form.cleaned_data.get('requested_time')
@@ -153,9 +185,18 @@ class CreateBookingView(CreateView):
         return response
 
     def form_invalid(self, form):
-        # Manda cualquier error no-campal a los flash messages
+        """
+        Handle form validation errors with user-friendly messages.
+
+        Converts technical database constraint errors into readable messages.
+
+        Args:
+            form: Invalid BookingForm instance
+
+        Returns:
+            HttpResponse: Form response with error messages
+        """
         for err in form.non_field_errors():
-            # Mensaje más amable si es el de unicidad
             txt = str(err)
             if 'Booking with this Vehicle' in txt and 'Requested time' in txt:
                 txt = "This vehicle is already booked for that date and time."
@@ -163,15 +204,33 @@ class CreateBookingView(CreateView):
         return super().form_invalid(form)
 
 class BookingThanksView(TemplateView):
+    """Displays confirmation page after successful booking submission."""
     template_name = 'bookings/booking_thanks.html'
 
 class BookingListView(ListView):
+    """Displays list of all bookings (admin/staff use)."""
     model = Booking
     template_name = 'bookings/booking_list.html'
     context_object_name = 'bookings'
 
 class CancelBookingView(LoginRequiredMixin, View):
+    """
+    Allows authenticated users to cancel their own bookings.
+
+    Only allows cancellation of future bookings that aren't already
+    completed or canceled. Sends email notification on cancellation.
+    """
     def post(self, request, pk):
+        """
+        Handle booking cancellation request.
+
+        Args:
+            request: HTTP POST request
+            pk: Booking primary key
+
+        Returns:
+            HttpResponse: Redirect to user dashboard
+        """
         booking = get_object_or_404(Booking, pk=pk, user=request.user)
         today = timezone.localdate()
 
@@ -194,16 +253,39 @@ class CancelBookingView(LoginRequiredMixin, View):
         return redirect('user_dashboard')
 
 class RescheduleBookingView(LoginRequiredMixin, UpdateView):
+    """
+    Allows authenticated users to reschedule their own bookings.
+
+    Validates the new time slot and sends email notification on success.
+    Prevents conflicts with existing bookings.
+    """
     model = Booking
     form_class = BookingForm
     template_name = 'bookings/booking_form.html'
     success_url = reverse_lazy('user_dashboard')
 
     def get_queryset(self):
-        # Make sure you can only touch your own stash
+        """
+        Ensure users can only reschedule their own bookings.
+
+        Returns:
+            QuerySet: User's bookings only
+        """
         return Booking.objects.filter(user=self.request.user)
 
     def form_valid(self, form):
+        """
+        Process booking reschedule with validation.
+
+        Validates new time slot doesn't conflict with existing bookings
+        and updates booking status to 'rescheduled'.
+
+        Args:
+            form: Valid BookingForm instance
+
+        Returns:
+            HttpResponse: Success response or form error response
+        """
         user = self.request.user
         d = form.cleaned_data.get('requested_date')
         t = form.cleaned_data.get('requested_time')

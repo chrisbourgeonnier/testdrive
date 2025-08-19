@@ -5,8 +5,25 @@ from django.utils import timezone
 from django.db.models import UniqueConstraint, Q
 from django.contrib.contenttypes.models import ContentType
 
-# Booking model relating to Vehicle, and supporting both guest and user bookings.
+
 class Booking(models.Model):
+    """
+    Represents a test drive booking for a vehicle.
+
+    Supports both authenticated users (via user field) and guest bookings
+    (via guest_* fields). Includes validation constraints to prevent double
+    bookings and ensure data integrity.
+
+    Business Rules:
+    - Users cannot have multiple bookings at same date/time
+    - Vehicles cannot be double-booked for same time slot
+    - Guest bookings are identified by email + name combination
+    - Only active (non-canceled) bookings count for conflicts
+
+    Status Flow: pending -> confirmed -> completed
+                        -> rescheduled -> completed
+                        -> canceled (terminal)
+    """
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
@@ -32,6 +49,16 @@ class Booking(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        """
+        Database constraints and metadata for Booking model.
+
+        Implements business rule constraints to prevent:
+        - User double-booking (same user, date, time)
+        - Guest double-booking (same name/email, date, time)
+        - Vehicle conflicts (same vehicle, date, time)
+
+        All constraints exclude canceled bookings to allow rebooking.
+        """
         constraints = [
             # A user cannot have two reservations on the same day and time.
             models.UniqueConstraint(
@@ -59,9 +86,18 @@ class Booking(models.Model):
 
 class EmailLog(models.Model):
     """
-    Model to track email delivery for auditing and debugging purposes.
+    Tracks email delivery attempts for audit and debugging purposes.
 
-    This helps us monitor email delivery success/failure and troubleshoot issues.
+    Records all email sending attempts with success/failure status and
+    error details. Helps monitor email delivery reliability and troubleshoot
+    issues with customer communications.
+
+    Email Types:
+    - booking_confirmation: Initial booking received notification
+    - booking_confirmed: Staff confirmed the booking
+    - booking_rescheduled: Booking date/time changed
+    - booking_canceled: Booking was canceled
+    - staff_notification: New booking notification to staff
     """
     EMAIL_TYPE_CHOICES = [
         ('booking_confirmation', 'Booking Confirmation'),
