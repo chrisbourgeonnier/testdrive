@@ -182,7 +182,3 @@ pytest bookings/tests.py
 This is a study project developed for educational purposes — **not** for commercial use. Richmonds was not involved in the design of this app.
 
 ***
-
-Do you want me to add that to make it *super beginner-friendly*?
-
-[1] https://ppl-ai-file-upload.s3.amazonaws.com/web/direct-files/attachments/73452538/11eae478-7204-4a69-9104-a5db0ef540b9/gitingest0810.txt
